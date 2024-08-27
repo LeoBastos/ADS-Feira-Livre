@@ -1,23 +1,18 @@
 ﻿using ads.feira.domain.Entity.Products;
+using ads.feira.domain.Entity.Reviews;
 using ads.feira.domain.Entity.Stores;
 using ads.feira.domain.Enums.Cupons;
 using ads.feira.domain.Validation;
 
 namespace ads.feira.domain.Entity.Cupons
 {
-    public sealed class Coupon : BaseEntity
+    public sealed class Cupon : BaseEntity
     {
-        private Coupon() { }
+        private Cupon() { }
 
-        public Coupon(string name, string code, string description, DateTime expiration, decimal discount, DiscountTypeEnum discountType)
+        public Cupon(int id, string name, string code, string description, DateTime expiration, decimal discount, DiscountTypeEnum discountType)
         {
-            ValidateDomain(name, code, description, expiration, discount, discountType);
-            Name = name;
-            Code = code;
-            Description = description;
-            Expiration = expiration;
-            Discount = discount;
-            DiscountType = discountType;
+            ValidateDomain(id, name, code, description, expiration, discount, discountType);           
         }
 
         public string Name { get; private set; }
@@ -31,9 +26,15 @@ namespace ads.feira.domain.Entity.Cupons
         public ICollection<Store> Stores { get; set; } = new List<Store>();
 
 
-        public void Update(string name, string code, string description, DateTime expiration, decimal discount, DiscountTypeEnum discountType)
+        public static Cupon Create(int id, string name, string code, string description, DateTime expiration, decimal discount, DiscountTypeEnum discountType)
         {
-            ValidateDomain(name, code, description, expiration, discount, discountType);
+            return new Cupon(id, name, code, description, expiration, discount, discountType);
+        }
+
+
+        public void Update(int id, string name, string code, string description, DateTime expiration, decimal discount, DiscountTypeEnum discountType)
+        {
+            ValidateDomain(id, name, code, description, expiration, discount, discountType);
         }
 
         public void Remove()
@@ -41,8 +42,11 @@ namespace ads.feira.domain.Entity.Cupons
             IsActive = false;
         }
 
-        private void ValidateDomain(string name, string code, string description, DateTime expiration, decimal discount, DiscountTypeEnum discountType)
+        private void ValidateDomain(int id, string name, string code, string description, DateTime expiration, decimal discount, DiscountTypeEnum discountType)
         {
+            DomainExceptionValidation.When(id < 0, "Id inválido.");
+            
+
             DomainExceptionValidation.When(string.IsNullOrEmpty(name), "Nome não pode ser nulo.");
             DomainExceptionValidation.When(name.Length < 3, "Minimo de 3 caracteres.");
 
@@ -53,8 +57,10 @@ namespace ads.feira.domain.Entity.Cupons
             DomainExceptionValidation.When(description.Length < 3, "Minimo de 3 caracteres.");
 
             DomainExceptionValidation.When(expiration < DateTime.UtcNow, "Data de expiração não pode ser menor do que a data atual");
+            
             DomainExceptionValidation.When(discount <= 0, "Desconto não pode ser menor igual a zero");           
 
+            Id = id;
             Name = name;
             Code = code;
             Description = description;

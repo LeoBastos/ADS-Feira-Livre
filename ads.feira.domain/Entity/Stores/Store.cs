@@ -1,5 +1,6 @@
 ﻿using ads.feira.domain.Entity.Categories;
 using ads.feira.domain.Entity.Cupons;
+using ads.feira.domain.Entity.Identity;
 using ads.feira.domain.Entity.Products;
 using ads.feira.domain.Entity.Reviews;
 using ads.feira.domain.Validation;
@@ -8,32 +9,38 @@ namespace ads.feira.domain.Entity.Stores
 {
     public class Store : BaseEntity
     {
-        private Store() { }
+        private Store(){}
 
-        public Store(string storeOwner, string name, string categoryId, string description, string assets, string storeNumber, bool hasDebt, string locations)
+        public Store(int id, string storeOwner, string name, string categoryId, string description, string assets, string storeNumber, bool hasDebt, string locations)
         {
-            ValidateDomain(storeOwner, name, categoryId, description, assets, storeNumber, hasDebt, locations);
+            ValidateDomain(id, storeOwner, name, categoryId, description, assets, storeNumber, hasDebt, locations);           
         }
 
-        public string StoreOwner { get; set; }
-        public string Name { get; set; }
-        public string CategoryId { get; set; }
-        public string Description { get; set; }
-        public string Assets { get; set; }
-        public string StoreNumber { get; set; }
-        public bool HasDebt { get; set; }
-        public string Locations { get; set; }
+        public string StoreOwner { get; private set; }
+        public string Name { get; private set; }
+        public string CategoryId { get; private set; }
+        public string Description { get; private set; }
+        public string Assets { get; private set; }
+        public string StoreNumber { get; private set; }
+        public bool HasDebt { get; private set; }
+        public string Locations { get; private set; }
 
         public Category Category { get; set; }
 
-        public ICollection<Product> Products { get; set; } = new List<Product>();
-        public ICollection<Review> Reviews { get; set; } = new List<Review>();
-        public ICollection<Coupon> AvailableCoupons { get; set; } = new List<Coupon>();
-        public ICollection<User> Users { get; set; } = new List<User>();
+        public ICollection<Product> Products { get; private set; } = new List<Product>();
+        public ICollection<Review> Reviews { get; private set; } = new List<Review>();
+        public ICollection<Cupon> AvailableCupons { get; private set; } = new List<Cupon>();
+        public ICollection<ApplicationUser> Users { get; private set; } = new List<ApplicationUser>();       
 
-        public void Update(string storeOwner, string name, string categoryId, string description, string assets, string storeNumber, bool hasDebt, string locations)
+
+        public static Store Create(int id, string storeOwner, string name, string categoryId, string description, string assets, string storeNumber, bool hasDebt, string locations)
         {
-            ValidateDomain(storeOwner, name, categoryId, description, assets, storeNumber, hasDebt, locations);
+            return new Store(id, storeOwner, name, categoryId, description, assets, storeNumber, hasDebt, locations);
+        }
+
+        public void Update(int id, string storeOwner, string name, string categoryId, string description, string assets, string storeNumber, bool hasDebt, string locations)
+        {
+            ValidateDomain(id, storeOwner, name, categoryId, description, assets, storeNumber, hasDebt, locations);
         }
 
         public void Remove()
@@ -41,8 +48,10 @@ namespace ads.feira.domain.Entity.Stores
             IsActive = false;
         }
 
-        private void ValidateDomain(string storeOwner, string name, string categoryId, string description, string assets, string storeNumber, bool hasDebt, string locations)
+        private void ValidateDomain(int id, string storeOwner, string name, string categoryId, string description, string assets, string storeNumber, bool hasDebt, string locations)
         {
+            DomainExceptionValidation.When(id < 0, "Id inválido.");
+
             DomainExceptionValidation.When(string.IsNullOrEmpty(storeOwner), "Lojista não pode ser nulo.");
             DomainExceptionValidation.When(storeOwner.Length < 3, "Minimo de 3 caracteres.");
 
@@ -61,7 +70,7 @@ namespace ads.feira.domain.Entity.Stores
             DomainExceptionValidation.When(string.IsNullOrEmpty(locations), "Local não pode ser nulo.");
             DomainExceptionValidation.When(locations.Length < 1, "Minimo de 3 caracteres.");
 
-
+            Id = id;
             StoreOwner = storeOwner;
             Name = name;
             CategoryId = categoryId;

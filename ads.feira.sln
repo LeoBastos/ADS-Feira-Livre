@@ -11,13 +11,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03-Infra", "03-Infra", "{DC
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04-Domain", "04-Domain", "{1DCC40EA-096B-427D-8326-F54A8F73D03B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ads.feira.domain", "ads.feira.domain\ads.feira.domain.csproj", "{9BF0F069-9355-4DA5-913F-A366FC037C91}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ads.feira.domain", "ads.feira.domain\ads.feira.domain.csproj", "{9BF0F069-9355-4DA5-913F-A366FC037C91}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ads.feira.Infra", "ads.feira.Infra\ads.feira.Infra.csproj", "{F4273FC7-5537-4499-9050-199079A1DF75}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ads.feira.Infra", "ads.feira.Infra\ads.feira.Infra.csproj", "{F4273FC7-5537-4499-9050-199079A1DF75}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ads.feira.application", "ads.feira.application\ads.feira.application.csproj", "{A00258F8-4EAD-45DC-9137-58CAFE45FCAB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ads.feira.application", "ads.feira.application\ads.feira.application.csproj", "{A00258F8-4EAD-45DC-9137-58CAFE45FCAB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ads.feira.api", "ads.feira.api\ads.feira.api.csproj", "{3CB47D2A-68B1-498A-9F59-F3AD13DF1D7E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ads.feira.api", "ads.feira.api\ads.feira.api.csproj", "{3CB47D2A-68B1-498A-9F59-F3AD13DF1D7E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{FFDBB002-6AD8-416C-8249-AD0DFB0A9FAA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{DA275E0C-4A46-48CA-973B-000808F2B8B6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ads.feira.domain.tests", "ads.feira.domain.tests\ads.feira.domain.tests.csproj", "{12616A0C-1357-43BE-8290-D8C215A2D72A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +47,10 @@ Global
 		{3CB47D2A-68B1-498A-9F59-F3AD13DF1D7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3CB47D2A-68B1-498A-9F59-F3AD13DF1D7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3CB47D2A-68B1-498A-9F59-F3AD13DF1D7E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12616A0C-1357-43BE-8290-D8C215A2D72A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12616A0C-1357-43BE-8290-D8C215A2D72A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12616A0C-1357-43BE-8290-D8C215A2D72A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12616A0C-1357-43BE-8290-D8C215A2D72A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,6 +60,8 @@ Global
 		{F4273FC7-5537-4499-9050-199079A1DF75} = {DCDA96D6-208E-4C08-A546-E5A11A77C8B4}
 		{A00258F8-4EAD-45DC-9137-58CAFE45FCAB} = {7382526F-BDBE-4A52-9484-9B79189B8F67}
 		{3CB47D2A-68B1-498A-9F59-F3AD13DF1D7E} = {DB9E4C29-115A-4BF3-A44C-81AB3DED3E79}
+		{DA275E0C-4A46-48CA-973B-000808F2B8B6} = {FFDBB002-6AD8-416C-8249-AD0DFB0A9FAA}
+		{12616A0C-1357-43BE-8290-D8C215A2D72A} = {DA275E0C-4A46-48CA-973B-000808F2B8B6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EEDB93AE-0D73-4C5E-9ABA-BC1F3CF7F582}

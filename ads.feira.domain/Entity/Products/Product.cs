@@ -10,9 +10,9 @@ namespace ads.feira.domain.Entity.Products
     {
         private Product(){}
 
-        public Product(string storeId, string categoryId, string name, string description, string assets, decimal price)
+        public Product(int id, string storeId, string categoryId, string name, string description, string assets, decimal price)
         {
-            ValidateDomain(storeId, categoryId, name, description, assets, price);
+            ValidateDomain(id, storeId, categoryId, name, description, assets, price);           
         }
 
         public string StoreId { get; private set; }
@@ -22,14 +22,19 @@ namespace ads.feira.domain.Entity.Products
         public string Assets { get; private set; }
         public decimal Price { get; private set; }
 
-        public Store Store { get; set; }
-        public Category Category { get; set; }
-        public ICollection<Coupon> AvailableCoupons { get; set; }  = new List<Coupon>();
+        public Store Stores { get; set; }
+        public Category Categories { get; set; }
+        public ICollection<Cupon> AvailableCoupons { get; set; }  = new List<Cupon>();
 
 
-        public void Update(string storeId, string categoryId, string name, string description, string assets, decimal price)
+        public static Product Create(int id, string storeId, string categoryId, string name, string description, string assets, decimal price)
         {
-            ValidateDomain(storeId, categoryId, name, description, assets, price);
+            return new Product(id, storeId, categoryId, name, description, assets, price);
+        }
+
+        public void Update(int id, string storeId, string categoryId, string name, string description, string assets, decimal price)
+        {
+            ValidateDomain(id, storeId, categoryId, name, description, assets, price);
         }
 
         public void Remove()
@@ -37,7 +42,7 @@ namespace ads.feira.domain.Entity.Products
             IsActive = false;
         }
 
-        public void ApplyAvailableCoupons(Coupon coupon)
+        public void ApplyAvailableCoupons(Cupon coupon)
         {
             if (coupon == null)
             {
@@ -80,8 +85,9 @@ namespace ads.feira.domain.Entity.Products
             AvailableCoupons.Add(coupon);
         }
 
-        private void ValidateDomain(string storeId, string categoryId, string name, string description, string assets, decimal price)
+        private void ValidateDomain(int id, string storeId, string categoryId, string name, string description, string assets, decimal price)
         {
+            DomainExceptionValidation.When(id < 0, "Id inválido.");
             DomainExceptionValidation.When(string.IsNullOrEmpty(storeId), "StoreId não pode ser nulo.");
             DomainExceptionValidation.When(string.IsNullOrEmpty(categoryId), "CategoryId não pode ser nulo.");
 
@@ -94,7 +100,7 @@ namespace ads.feira.domain.Entity.Products
             DomainExceptionValidation.When(assets?.Length > 250, "Nome de imagem inválida, máximo 250 caracteres");
 
             DomainExceptionValidation.When(price < 0, "Valor de preço inválido");
-
+            Id = id;
             StoreId = storeId;
             CategoryId = categoryId;           
             Name = name;

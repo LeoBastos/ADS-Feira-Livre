@@ -7,7 +7,7 @@ namespace ads.feira.domain.Entity.Identity
 {
     public sealed class ApplicationUser : IdentityUser
     {
-        private ApplicationUser() { }
+        public ApplicationUser() { }
 
         public string FullName { get; set; }
         public string Description { get; set; }
@@ -19,10 +19,11 @@ namespace ads.feira.domain.Entity.Identity
         public bool IsActive => _isActive;
 
         public ICollection<Review> Reviews { get; private set; } = new List<Review>();
-        public ICollection<Coupon> RedeemedCoupons { get; private set; } = new List<Coupon>();
-        public ICollection<Store> Stores { get; private set; } = new List<Store>();
+        public ICollection<Cupon> RedeemedCoupons { get; private set; } = new List<Cupon>();
+        public ICollection<Store> Stores { get; private set; } = new List<Store>();        
 
-        public void DeactivateUser()
+
+        public void Remove()
         {
             _isActive = false;
         }

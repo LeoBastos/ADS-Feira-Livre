@@ -8,9 +8,9 @@ namespace ads.feira.domain.Entity.Reviews
     {
         private Review() { }
 
-        public Review(string userId, string reviewContent, string storeId, int rate)
+        public Review(int id, string userId, string reviewContent, string storeId, int rate)
         {
-            ValidateDomain(userId, reviewContent, storeId, rate);            
+            ValidateDomain(id, userId, reviewContent, storeId, rate);            
         }
 
         public string UserId { get; private set; }
@@ -21,9 +21,16 @@ namespace ads.feira.domain.Entity.Reviews
         public Store Store { get; private set; }
         public ApplicationUser User { get; private set; }
 
-        public void Update(string userId, string reviewContent, string storeId, int rate)
+
+
+        public static Review Create(int id, string userId, string reviewContent, string storeId, int rate)
         {
-            ValidateDomain(userId, reviewContent, storeId, rate);
+            return new Review(id, userId, reviewContent, storeId, rate);
+        }
+
+        public void Update(int id, string userId, string reviewContent, string storeId, int rate)
+        {
+            ValidateDomain(id, userId, reviewContent, storeId, rate);
         }
 
         public void Remove()
@@ -31,8 +38,9 @@ namespace ads.feira.domain.Entity.Reviews
             IsActive = false;
         }
 
-        private void ValidateDomain(string userId, string reviewContent, string storeId, int rate)
+        private void ValidateDomain(int id, string userId, string reviewContent, string storeId, int rate)
         {
+            DomainExceptionValidation.When(id < 0, "Id inválido.");           
             DomainExceptionValidation.When(string.IsNullOrEmpty(userId), "UserId não pode ser nulo.");
             DomainExceptionValidation.When(string.IsNullOrEmpty(storeId), "UserId não pode ser nulo.");
 
@@ -41,6 +49,7 @@ namespace ads.feira.domain.Entity.Reviews
 
             DomainExceptionValidation.When(rate < 0 || rate > 5, "Rate deve ter um valor entre 0 e 5");
 
+            Id = id;
             UserId = userId;
             ReviewContent = reviewContent;
             StoreId = storeId;

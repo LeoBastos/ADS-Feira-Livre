@@ -12,7 +12,7 @@ namespace ads.feira.domain.tests.Products
         public void CreateProduct_WithValidParameters_ResultObjectValidState()
         {
             // Act
-            Action action = () => new Product(1, "storeId", "categoryId", "name", "description", "imagens", 15, 0);
+            Action action = () => new Product(1, 2, 3, "name", "description", "imagens", 15, 0);
 
             // Assert
             action.Should()
@@ -23,7 +23,7 @@ namespace ads.feira.domain.tests.Products
         public void CreateProduct_NegativeIdValue_DomainExceptionInvalidId()
         {
             // Act
-            Action action = () => new Product(-1, "storeId", "categoryId", "name", "description", "imagens", 15, 0);
+            Action action = () => new Product(-1, 1, 2, "name", "description", "imagens", 15, 0);
 
             // Assert
             action.Should()
@@ -35,7 +35,7 @@ namespace ads.feira.domain.tests.Products
         public void CreateProduct_ShortNameValue_DomainExceptionShortName()
         {
             // Act
-            Action action = () => new Product(1, "storeId", "categoryId", "n", "description", "imagens", 15, 0);
+            Action action = () => new Product(1, 1, 2, "n", "description", "imagens", 15, 0);
 
             action.Should()
                 .Throw<Validation.DomainExceptionValidation>()
@@ -46,7 +46,7 @@ namespace ads.feira.domain.tests.Products
         public void CreateProduct_ShortDescriptionValue_DomainExceptionShortName()
         {
             // Act
-            Action action = () => new Product(1, "storeId", "categoryId", "name", "de", "imagens", 15, 0);
+            Action action = () => new Product(1, 2, 1, "name", "de", "imagens", 15, 0);
 
             action.Should()
                 .Throw<Validation.DomainExceptionValidation>()
@@ -57,7 +57,7 @@ namespace ads.feira.domain.tests.Products
         public void CreateProduct_WithInvalidPrice_DomainExceptionShortName()
         {
             // Act
-            Action action = () => new Product(1, "storeId", "categoryId", "name", "description", "imagens", -15, 0);
+            Action action = () => new Product(1, 1, 2, "name", "description", "imagens", -15, 0);
 
             action.Should()
                 .Throw<Validation.DomainExceptionValidation>()
@@ -70,7 +70,7 @@ namespace ads.feira.domain.tests.Products
         public void UpdateDiscountedPrice_WithValidCoupons_ShouldCalculateCorrectly()
         {
             // Arrange
-            var product = new Product(1, "Store1", "Category1", "Test Product", "Description", "asset.jpg", 100m, null);
+            var product = new Product(1, 1, 2, "Test Product", "Description", "asset.jpg", 100m, null);
             var percentageCoupon = new Cupon(1, "10% Off", "PERCENT10", "10% discount", DateTime.Now.AddDays(30), 10m, DiscountTypeEnum.Percentage);
             var fixedCoupon = new Cupon(2, "$5 Off", "FIXED5", "$5 discount", DateTime.Now.AddDays(30), 5m, DiscountTypeEnum.Fixed);
 
@@ -106,7 +106,7 @@ namespace ads.feira.domain.tests.Products
         public void RemoveCoupon_ExistingCoupon_ShouldRemoveAndUpdatePrice()
         {
             // Arrange
-            var product = new Product(1, "Store1", "Category1", "Test Product", "Description", "asset.jpg", 100m, null);
+            var product = new Product(1, 1, 2, "Test Product", "Description", "asset.jpg", 100m, null);
             var coupon = new Cupon(1, "10% Off", "PERCENT10", "10% discount", DateTime.Now.AddDays(30), 10m, DiscountTypeEnum.Percentage);
             product.AddCoupon(coupon);
 
@@ -122,7 +122,7 @@ namespace ads.feira.domain.tests.Products
         public void RemoveCoupon_NonExistingCoupon_ShouldNotAffectPriceOrCollection()
         {
             // Arrange
-            var product = new Product(1, "Store1", "Category1", "Test Product", "Description", "asset.jpg", 100m, null);
+            var product = new Product(1, 1, 2, "Test Product", "Description", "asset.jpg", 100m, null);
             var existingCoupon = new Cupon(1, "10% Off", "PERCENT10", "10% discount", DateTime.Now.AddDays(30), 10m, DiscountTypeEnum.Percentage);
             var nonExistingCoupon = new Cupon(2, "$5 Off", "FIXED5", "$5 discount", DateTime.Now.AddDays(30), 5m, DiscountTypeEnum.Fixed);
             product.AddCoupon(existingCoupon);
@@ -139,7 +139,7 @@ namespace ads.feira.domain.tests.Products
         public void RemoveCoupon_NullCoupon_ShouldThrowDomainExceptionValidation()
         {
             // Arrange
-            var product = new Product(1, "Store1", "Category1", "Test Product", "Description", "asset.jpg", 100m, null);
+            var product = new Product(1, 1, 2, "Test Product", "Description", "asset.jpg", 100m, null);
 
             // Act & Assert
             var exception = Assert.Throws<DomainExceptionValidation>(() => product.RemoveCoupon(null));
@@ -150,7 +150,7 @@ namespace ads.feira.domain.tests.Products
         public void AddCoupon_ValidCoupon_ShouldAddAndUpdatePrice()
         {
             // Arrange
-            var product = new Product(1, "Store1", "Category1", "Test Product", "Description", "asset.jpg", 100m, null);
+            var product = new Product(1, 1, 2, "Test Product", "Description", "asset.jpg", 100m, null);
             var coupon = new Cupon(1, "10% Off", "PERCENT10", "10% discount", DateTime.Now.AddDays(30), 10m, DiscountTypeEnum.Percentage);
 
             // Act
@@ -177,7 +177,7 @@ namespace ads.feira.domain.tests.Products
         public void AddCoupon_NullCoupon_ShouldThrowDomainExceptionValidation()
         {
             // Arrange
-            var product = new Product(1, "Store1", "Category1", "Test Product", "Description", "asset.jpg", 100m, null);
+            var product = new Product(1, 1, 2, "Test Product", "Description", "asset.jpg", 100m, null);
 
             // Act & Assert
             var exception = Assert.Throws<DomainExceptionValidation>(() => product.AddCoupon(null));
@@ -192,7 +192,7 @@ namespace ads.feira.domain.tests.Products
         public void CreateProduct_InitializesWithEmptyCollections()
         {
             // Act
-            var product = new Product(1, "storeId", "categoryId", "name", "description", "imagens", 15, 0);
+            var product = new Product(1, 1, 2, "name", "description", "imagens", 15, 0);
 
             // Assert
             product.AvailableCoupons.Should().BeEmpty("porque um novo produto deve ter uma coleção de lojas vazia.");

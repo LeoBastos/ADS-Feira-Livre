@@ -13,17 +13,17 @@ namespace ads.feira.domain.tests.Identities
         public void Constructor_ShouldInitializeAsActive()
         {
             // Arrange
-            var user = new ApplicationUser();
+            var applicationUser = CognitoUser.Create(1, "testuser@example.com", "testuser", "xxxx", "sadfsdf", true, true, "admin");
 
             // Act & Assert
-            user.IsActive.Should().BeTrue("porque um novo usuário deve estar ativo por padrão.");
+            applicationUser.IsActive.Should().BeTrue("porque um novo usuário deve estar ativo por padrão.");
         }
 
         [Fact(DisplayName = "Método Remove deve desativar o usuário")]
         public void Remove_ShouldSetIsActiveToFalse()
         {
             // Arrange
-            var user = new ApplicationUser();
+            var user = CognitoUser.Create(1, "testuser@example.com", "testuser", "xxxx", "sadfsdf", true, true, "admin");
 
             // Act
             user.Remove();
@@ -36,8 +36,8 @@ namespace ads.feira.domain.tests.Identities
         public void AddReview_ShouldAddReviewToCollection()
         {
             // Arrange
-            var user = new ApplicationUser();
-            var review = Review.Create(1, "userId", "reviewContent", "storeId", 5);
+            var user = CognitoUser.Create(1, "testuser@example.com", "testuser", "xxxx", "sadfsdf", true, true, "admin");
+            var review = Review.Create(1, 1, "reviewContent",2, 5);
 
             // Act
             user.Reviews.Add(review);
@@ -50,7 +50,7 @@ namespace ads.feira.domain.tests.Identities
         public void AddRedeemedCoupon_ShouldAddCouponToCollection()
         {
             // Arrange
-            var user = new ApplicationUser();
+            var user = CognitoUser.Create(1, "testuser@example.com", "testuser", "xxxx", "sadfsdf", true, true, "admin");
             var coupon = Cupon.Create(1, "name", "code", "description", DateTime.UtcNow.AddDays(1), 10, Enums.Cupons.DiscountTypeEnum.Percentage);
 
             // Act
@@ -64,8 +64,8 @@ namespace ads.feira.domain.tests.Identities
         public void AddStore_ShouldAddStoreToCollection()
         {
             // Arrange
-            var user = new ApplicationUser();
-            var store = Store.Create(1, "string Owner", "name", "categoryId", "description", "assets", "storeNumbere", false, "locations"); // Supondo que Store seja uma classe válida
+            var user = CognitoUser.Create(1, "testuser@example.com", "testuser", "xxxx", "sadfsdf", true, true, "admin");
+            var store = Store.Create(1, "string Owner", "name", 2, "description", "assets", "storeNumbere", false, "locations"); // Supondo que Store seja uma classe válida
 
             // Act
             user.Stores.Add(store);

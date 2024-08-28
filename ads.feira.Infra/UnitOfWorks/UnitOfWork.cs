@@ -1,4 +1,4 @@
-﻿using ads.feira.domain.Interfaces;
+﻿using ads.feira.domain.Interfaces.UnitOfWorks;
 using ads.feira.Infra.Context;
 
 namespace ads.feira.Infra.UnitOfWorks

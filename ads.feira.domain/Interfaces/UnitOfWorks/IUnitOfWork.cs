@@ -1,4 +1,4 @@
-﻿namespace ads.feira.domain.Interfaces
+﻿namespace ads.feira.domain.Interfaces.UnitOfWorks
 {
     public interface IUnitOfWork : IDisposable
     {

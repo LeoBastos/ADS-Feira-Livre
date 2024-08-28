@@ -1,3 +1,21 @@
+using ads.feira.domain.Interfaces.Categories;
+using ads.feira.domain.Interfaces.Cupons;
+using ads.feira.domain.Interfaces.Identities;
+using ads.feira.domain.Interfaces.Products;
+using ads.feira.domain.Interfaces.Reviews;
+using ads.feira.domain.Interfaces.Stores;
+using ads.feira.domain.Interfaces.UnitOfWorks;
+using ads.feira.Infra.Context;
+using ads.feira.Infra.Repositories.Categories;
+using ads.feira.Infra.Repositories.Cupons;
+using ads.feira.Infra.Repositories.Identities;
+using ads.feira.Infra.Repositories.Products;
+using ads.feira.Infra.Repositories.Reviews;
+using ads.feira.Infra.Repositories.Stores;
+using ads.feira.Infra.UnitOfWorks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 
@@ -8,6 +26,45 @@ namespace ads.feira.api
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            var connection = builder.Configuration.GetConnectionString("DefaultConnection");
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(connection));
+
+            // Configure AWS Cognito
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.Authority = builder.Configuration["Aws:Authority"];
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    RoleClaimType = "cognito:groups"
+                };
+            });
+
+            // Add authorization
+            builder.Services.AddAuthorization();
+            builder.Services.AddCognitoIdentity();
+            builder.Services.AddAWSService<Amazon.CognitoIdentityProvider.IAmazonCognitoIdentityProvider>();
+
+
+            //Injections            
+            builder.Services.AddScoped<ICognitoUserRepository, CognitoUserRepository>();
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<ICuponRepository, CuponRepository>();
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+            builder.Services.AddScoped<IStoreRepository, StoreRepository>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();

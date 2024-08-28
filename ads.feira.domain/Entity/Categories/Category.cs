@@ -10,7 +10,7 @@ namespace ads.feira.domain.Entity.Categories
     {
         private Category(){}
 
-        public Category(int id, string name, TypeCategoryEnum type, string description, string assets, string createdById)
+        public Category(int id, string name, TypeCategoryEnum type, string description, string assets, int createdById)
         {
             ValidateDomain(id, name, type, description, assets, createdById);
         }      
@@ -20,18 +20,18 @@ namespace ads.feira.domain.Entity.Categories
         public string Description { get; private set; }
         public string Assets { get; private set; }
 
-        public string CreatedById { get; private set; }
-        public ApplicationUser CreatedBy { get; private set; }
+        public int CreatedById { get; private set; }
+        public CognitoUser CreatedBy { get; private set; }
         public ICollection<Product> Products { get; private set; } = new List<Product>();
         public ICollection<Store> Stores { get; private set; } = new List<Store>();
 
 
-        public static Category Create(int id, string name, TypeCategoryEnum type, string description, string assets, string createdById)
+        public static Category Create(int id, string name, TypeCategoryEnum type, string description, string assets, int createdById)
         {
             return new Category(id, name, type, description, assets, createdById);
         }
 
-        public void Update(int id, string name, TypeCategoryEnum type, string description, string assets, string createdById)
+        public void Update(int id, string name, TypeCategoryEnum type, string description, string assets, int createdById)
         {
             ValidateDomain(id, name, type, description, assets, createdById);           
         }
@@ -53,18 +53,15 @@ namespace ads.feira.domain.Entity.Categories
             Products.Remove(product);
         }
 
-        private void ValidateDomain(int id, string name, TypeCategoryEnum type, string description, string assets, string createdById)
+        private void ValidateDomain(int id, string name, TypeCategoryEnum type, string description, string assets, int createdById)
         {
             DomainExceptionValidation.When(id < 0, "Id inválido.");
             DomainExceptionValidation.When(string.IsNullOrEmpty(name), "Nome não pode ser nulo.");
             DomainExceptionValidation.When(name.Length < 3, "Minimo de 3 caracteres.");           
-
             DomainExceptionValidation.When(string.IsNullOrEmpty(description), "Descrição não pode ser nulo.");
             DomainExceptionValidation.When(description.Length < 3, "Minimo de 3 caracteres.");
-
             DomainExceptionValidation.When(assets?.Length > 250, "Nome de imagem inválida, máximo 250 caracteres");
-
-            DomainExceptionValidation.When(string.IsNullOrEmpty(createdById), "CreatedById não pode ser nulo");
+            DomainExceptionValidation.When(createdById < 0, "Id inválido.");
 
             Id = id;
             Name = name;

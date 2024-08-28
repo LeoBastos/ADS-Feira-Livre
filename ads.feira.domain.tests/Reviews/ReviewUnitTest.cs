@@ -9,7 +9,7 @@ namespace ads.feira.domain.tests.Reviews
         public void CreateReview_WithValidParameters_ResultObjectValidState()
         {
             // Act
-            Action action = () => new Review(1, "userId", "ReviewContent", "StoreId", 5);
+            Action action = () => new Review(1, 1, "ReviewContent", 2, 5);
 
             // Assert
             action.Should()
@@ -20,7 +20,7 @@ namespace ads.feira.domain.tests.Reviews
         public void CreateReview_NegativeIdValue_DomainExceptionInvalidId()
         {
             // Act
-            Action action = () => new Review(-1, "userId", "ReviewContent", "StoreId", 5);
+            Action action = () => new Review(-1, 2, "ReviewContent", 2, 5);
 
             // Assert
             action.Should()
@@ -32,7 +32,7 @@ namespace ads.feira.domain.tests.Reviews
         public void CreateReview_ShortReviewContentValue_DomainExceptionShortName()
         {
             // Act
-            Action action = () => new Review(1, "userId", "Re", "StoreId", 5);
+            Action action = () => new Review(1, 2, "Re",2, 5);
 
             action.Should()
                 .Throw<Validation.DomainExceptionValidation>()
@@ -43,7 +43,7 @@ namespace ads.feira.domain.tests.Reviews
         public void CreateReview_WithInvaldRateValue_DomainExceptionShortName()
         {
             // Act
-            Action action = () => new Review(1, "userId", "ReviewContent", "StoreId", -1);
+            Action action = () => new Review(1, 2, "Re223", 2, -1);
 
             action.Should()
                 .Throw<Validation.DomainExceptionValidation>()
@@ -54,7 +54,7 @@ namespace ads.feira.domain.tests.Reviews
         public void CreateReview_WithdRateValueMore5_DomainExceptionShortName()
         {
             // Act
-            Action action = () => new Review(1, "userId", "ReviewContent", "StoreId", 6);
+            Action action = () => new Review(1, 2, "Reddd", 2, 7);
 
             action.Should()
                 .Throw<Validation.DomainExceptionValidation>()

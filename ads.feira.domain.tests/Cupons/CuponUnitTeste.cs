@@ -1,9 +1,7 @@
-﻿using ads.feira.domain.Entity.Categories;
-using ads.feira.domain.Entity.Cupons;
+﻿using ads.feira.domain.Entity.Cupons;
 using ads.feira.domain.Entity.Products;
 using ads.feira.domain.Entity.Stores;
 using ads.feira.domain.Enums.Cupons;
-using ads.feira.domain.Enums.Products;
 using ads.feira.domain.Validation;
 using FluentAssertions;
 
@@ -75,7 +73,7 @@ namespace ads.feira.domain.tests.Cupons
 
             action.Should()
                 .Throw<Validation.DomainExceptionValidation>()
-                   .WithMessage("Data de expiração não pode ser menor do que a data atual");
+                   .WithMessage("O cupom não é válido ou está expirado.");
         }
 
         [Fact(DisplayName = "Desconto com valor negativo")]
@@ -107,8 +105,8 @@ namespace ads.feira.domain.tests.Cupons
         {
             // Arrange
             var cupon = new Cupon(1, "name", "code", "Description", DateTime.UtcNow.AddDays(1), 10, DiscountTypeEnum.Fixed);
-            var product = new Product(1, "Store1", "categoryId" , "Test Product", "Description", "asset.jpg", 10.99m, 0);
-            var store = new Store(1, "storeOwner", "name", "categoryId", "description", "imagens", "2", true, "locations");
+            var product = new Product(1, 1, 1, "nome", "Description", "asset.jpg", 10.99m, 0);
+            var store = new Store(1, "storeOwner", "name", 1, "description", "imagens", "2", true, "locations");
 
             // Act
             cupon.AddProduct(product);
@@ -137,8 +135,8 @@ namespace ads.feira.domain.tests.Cupons
         {
             // Arrange
             var cupon = new Cupon(1, "name", "code", "Description", DateTime.UtcNow.AddDays(1), 10, DiscountTypeEnum.Fixed);
-            var product = new Product(1, "Store1", "categoriaId", "Test Product", "Description", "asset.jpg", 10.99m, 0);
-            var store = new Store(1, "storeOwner", "name", "categoryId", "description", "imagens", "2", true, "locations");
+            var product = new Product(1, 1, 1, "Test Product", "Description", "asset.jpg", 10.99m, 0);
+            var store = new Store(1, "storeOwner", "name", 1, "description", "imagens", "2", true, "locations");
 
             cupon.AddProduct(product);
             cupon.AddStore(store);
@@ -172,7 +170,7 @@ namespace ads.feira.domain.tests.Cupons
         {
             // Arrange           
             var cupon = new Cupon(1, "name", "code", "description", DateTime.UtcNow.AddDays(1), 20, DiscountTypeEnum.Percentage);
-            var store = Store.Create(1, "storage owner", "name", "2", "description", "imagens", "1", false, "locations");
+            var store = Store.Create(1, "storage owner", "name", 2, "description", "imagens", "1", false, "locations");
 
             // Act
             cupon.Stores.Add(store);
@@ -187,7 +185,7 @@ namespace ads.feira.domain.tests.Cupons
             // Arrange
 
             var cupon = new Cupon(1, "name", "code", "description", DateTime.UtcNow.AddDays(1), 20, DiscountTypeEnum.Percentage);
-            var product = Product.Create(1, "store123", "category123", "Product 1", "Description", "assets", 100.0m, 0);
+            var product = Product.Create(1, 1, 1, "Product 1", "Description", "assets", 100.0m, 0);
 
             // Act
             cupon.Products.Add(product);
@@ -195,7 +193,7 @@ namespace ads.feira.domain.tests.Cupons
             // Assert
             cupon.Products.Should().Contain(product, "porque o produto foi adicionado ao cupon.");
         }
-        
+
         #endregion
     }
 }

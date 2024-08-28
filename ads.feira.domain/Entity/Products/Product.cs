@@ -6,13 +6,13 @@ using ads.feira.domain.Validation;
 
 namespace ads.feira.domain.Entity.Products
 {
-    public sealed class Product : BaseEntity
+    public sealed class Product : BaseEntity, IEquatable<Product>
     {
         private Product(){}
 
-        public Product(int id, string storeId, string categoryId, string name, string description, string assets, decimal price)
+        public Product(int id, string storeId, string categoryId, string name, string description, string assets, decimal price, decimal? discountedPrice)
         {
-            ValidateDomain(id, storeId, categoryId, name, description, assets, price);           
+            ValidateDomain(id, storeId, categoryId, name, description, assets, price, discountedPrice);           
         }
 
         public string StoreId { get; private set; }
@@ -21,20 +21,21 @@ namespace ads.feira.domain.Entity.Products
         public string Description { get; private set; }
         public string Assets { get; private set; }
         public decimal Price { get; private set; }
+        public decimal? DiscountedPrice { get; private set; }
 
-        public Store Stores { get; set; }
-        public Category Categories { get; set; }
+        public Store Store { get; set; }
+        public Category Category { get; set; }
         public ICollection<Cupon> AvailableCoupons { get; set; }  = new List<Cupon>();
 
 
-        public static Product Create(int id, string storeId, string categoryId, string name, string description, string assets, decimal price)
+        public static Product Create(int id, string storeId, string categoryId, string name, string description, string assets, decimal price, decimal? discountedPrice)
         {
-            return new Product(id, storeId, categoryId, name, description, assets, price);
+            return new Product(id, storeId, categoryId, name, description, assets, price, discountedPrice);
         }
 
-        public void Update(int id, string storeId, string categoryId, string name, string description, string assets, decimal price)
+        public void Update(int id, string storeId, string categoryId, string name, string description, string assets, decimal price, decimal? discountedPrice)
         {
-            ValidateDomain(id, storeId, categoryId, name, description, assets, price);
+            ValidateDomain(id, storeId, categoryId, name, description, assets, price, discountedPrice);
         }
 
         public void Remove()
@@ -42,50 +43,42 @@ namespace ads.feira.domain.Entity.Products
             IsActive = false;
         }
 
-        public void ApplyAvailableCoupons(Cupon coupon)
+        public void AddCoupon(Cupon coupon)
         {
-            if (coupon == null)
-            {
-                throw new ArgumentNullException(nameof(coupon), "O cupom não pode ser nulo.");
-            }
-
-            if (coupon.Expiration < DateTime.UtcNow)
-            {
-                throw new DomainExceptionValidation("Data de expiração não pode ser menor do que a data atual.");
-            }
-
-            decimal discountAmount = 0;
-
-            switch (coupon.DiscountType)
-            {
-                case DiscountTypeEnum.Percentage:
-                    discountAmount = Price * (coupon.Discount / 100);
-                    break;
-
-                case DiscountTypeEnum.Fixed:
-                    discountAmount = coupon.Discount;
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(coupon.DiscountType), "Tipo de desconto inválido.");
-            }
-
-            if (discountAmount > Price)
-            {
-                throw new DomainExceptionValidation("O valor do desconto não pode ser maior que o preço do produto.");
-            }
-
-            Price -= discountAmount;
-
-            if (Price < 0)
-            {
-                Price = 0;
-            }
-            
+            DomainExceptionValidation.When(coupon == null, "O cupom não pode ser nulo.");
+            DomainExceptionValidation.When(coupon.Expiration < DateTime.UtcNow, "O cupom não é válido ou está expirado.");
             AvailableCoupons.Add(coupon);
+            UpdateDiscountedPrice();
         }
 
-        private void ValidateDomain(int id, string storeId, string categoryId, string name, string description, string assets, decimal price)
+        public void RemoveCoupon(Cupon coupon)
+        {
+            DomainExceptionValidation.When(coupon == null, "O cupom não pode ser nulo.");
+            AvailableCoupons.Remove(coupon);
+            UpdateDiscountedPrice();
+        }
+
+        public void UpdateDiscountedPrice()
+        {
+            decimal discountedPrice = Price;
+
+            foreach (var coupon in AvailableCoupons.Where(c => c.IsValid()))
+            {
+                switch (coupon.DiscountType)
+                {
+                    case DiscountTypeEnum.Percentage:
+                        discountedPrice -= discountedPrice * (coupon.Discount / 100);
+                        break;
+                    case DiscountTypeEnum.Fixed:
+                        discountedPrice -= coupon.Discount;
+                        break;
+                }
+            }
+
+            DiscountedPrice = Math.Max(discountedPrice, 0);
+        }
+
+        private void ValidateDomain(int id, string storeId, string categoryId, string name, string description, string assets, decimal price, decimal? discountedPrice)
         {
             DomainExceptionValidation.When(id < 0, "Id inválido.");
             DomainExceptionValidation.When(string.IsNullOrEmpty(storeId), "StoreId não pode ser nulo.");
@@ -100,6 +93,7 @@ namespace ads.feira.domain.Entity.Products
             DomainExceptionValidation.When(assets?.Length > 250, "Nome de imagem inválida, máximo 250 caracteres");
 
             DomainExceptionValidation.When(price < 0, "Valor de preço inválido");
+
             Id = id;
             StoreId = storeId;
             CategoryId = categoryId;           
@@ -107,6 +101,25 @@ namespace ads.feira.domain.Entity.Products
             Description = description;
             Assets = assets;
             Price = price;
+            DiscountedPrice = discountedPrice;
+        }
+
+        public bool Equals(Product other)
+        {
+            if (other is null)
+                return false;
+
+            return Id == other.Id && Name == other.Name && StoreId == other.StoreId;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as Product);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Id, Name, StoreId);
         }
     }
 }

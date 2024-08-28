@@ -1,7 +1,10 @@
-﻿using ads.feira.domain.Entity.Cupons;
+﻿using ads.feira.domain.Entity.Categories;
+using ads.feira.domain.Entity.Cupons;
 using ads.feira.domain.Entity.Products;
 using ads.feira.domain.Entity.Stores;
 using ads.feira.domain.Enums.Cupons;
+using ads.feira.domain.Enums.Products;
+using ads.feira.domain.Validation;
 using FluentAssertions;
 
 namespace ads.feira.domain.tests.Cupons
@@ -97,7 +100,62 @@ namespace ads.feira.domain.tests.Cupons
                    .WithMessage("Desconto não pode ser menor igual a zero");
         }
 
-        //Collections
+        #region METHODS
+
+        [Fact(DisplayName = "Adicionar Produto e Stores")]
+        public void AddProductAndStores_ValidProduct_ShouldAddToCollection()
+        {
+            // Arrange
+            var cupon = new Cupon(1, "name", "code", "Description", DateTime.UtcNow.AddDays(1), 10, DiscountTypeEnum.Fixed);
+            var product = new Product(1, "Store1", "categoryId" , "Test Product", "Description", "asset.jpg", 10.99m, 0);
+            var store = new Store(1, "storeOwner", "name", "categoryId", "description", "imagens", "2", true, "locations");
+
+            // Act
+            cupon.AddProduct(product);
+            cupon.AddStore(store);
+
+            // Assert
+            Assert.Single(cupon.Products);
+            Assert.Single(cupon.Stores);
+            Assert.Contains(product, cupon.Products);
+            Assert.Contains(store, cupon.Stores);
+        }
+
+        [Fact(DisplayName = "Tentar Adicionar Produto com objeto Null")]
+        public void AddProduct_NullProduct_ShouldThrowDomainExceptionValidation()
+        {
+            // Arrange
+            var cupon = new Cupon(1, "name", "code", "Description", DateTime.UtcNow.AddDays(1), 10, DiscountTypeEnum.Fixed);
+
+            // Act & Assert
+            var exception = Assert.Throws<DomainExceptionValidation>(() => cupon.AddProduct(null));
+            Assert.Equal("Produto não pode ser nulo.", exception.Message);
+        }
+
+        [Fact(DisplayName = "Remover produto")]
+        public void RemoveProduct_ExistingProduct_ShouldRemoveFromCollection()
+        {
+            // Arrange
+            var cupon = new Cupon(1, "name", "code", "Description", DateTime.UtcNow.AddDays(1), 10, DiscountTypeEnum.Fixed);
+            var product = new Product(1, "Store1", "categoriaId", "Test Product", "Description", "asset.jpg", 10.99m, 0);
+            var store = new Store(1, "storeOwner", "name", "categoryId", "description", "imagens", "2", true, "locations");
+
+            cupon.AddProduct(product);
+            cupon.AddStore(store);
+
+            // Act
+            cupon.RemoveProduct(product);
+            cupon.RemoveStore(store);
+
+            // Assert
+            Assert.Empty(cupon.Products);
+            Assert.Empty(cupon.Stores);
+        }
+
+        #endregion
+
+        #region COLLECTIONS
+
         [Fact(DisplayName = "Cupon Inicializa com Coleções Vázias")]
         public void CreateCupon_InitializesWithEmptyCollections()
         {
@@ -129,7 +187,7 @@ namespace ads.feira.domain.tests.Cupons
             // Arrange
 
             var cupon = new Cupon(1, "name", "code", "description", DateTime.UtcNow.AddDays(1), 20, DiscountTypeEnum.Percentage);
-            var product = Product.Create(1, "store123", "category123", "Product 1", "Description", "assets", 100.0m);
+            var product = Product.Create(1, "store123", "category123", "Product 1", "Description", "assets", 100.0m, 0);
 
             // Act
             cupon.Products.Add(product);
@@ -137,5 +195,7 @@ namespace ads.feira.domain.tests.Cupons
             // Assert
             cupon.Products.Should().Contain(product, "porque o produto foi adicionado ao cupon.");
         }
+        
+        #endregion
     }
 }

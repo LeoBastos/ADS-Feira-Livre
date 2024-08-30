@@ -1,5 +1,5 @@
 ﻿using ads.feira.domain.Entity.Cupons;
-using ads.feira.domain.Entity.Identity;
+using ads.feira.domain.Entity.Accounts;
 using ads.feira.domain.Entity.Reviews;
 using ads.feira.domain.Entity.Stores;
 using FluentAssertions;
@@ -13,7 +13,7 @@ namespace ads.feira.domain.tests.Identities
         public void Constructor_ShouldInitializeAsActive()
         {
             // Arrange
-            var applicationUser = CognitoUser.Create(1, "testuser@example.com", "testuser", "xxxx", "sadfsdf", true, true, "admin");
+            var applicationUser = CognitoUser.Create(Guid.Parse("4B660458-AC10-48BA-8226-A8A84F302BC7"), "testuser@example.com", "testuser", "xxxx", "sadfsdf", true, true, "admin");
 
             // Act & Assert
             applicationUser.IsActive.Should().BeTrue("porque um novo usuário deve estar ativo por padrão.");
@@ -23,7 +23,7 @@ namespace ads.feira.domain.tests.Identities
         public void Remove_ShouldSetIsActiveToFalse()
         {
             // Arrange
-            var user = CognitoUser.Create(1, "testuser@example.com", "testuser", "xxxx", "sadfsdf", true, true, "admin");
+            var user = CognitoUser.Create(Guid.Parse("4B660458-AC10-48BA-8226-A8A84F302BC7"), "testuser@example.com", "testuser", "xxxx", "sadfsdf", true, true, "admin");
 
             // Act
             user.Remove();
@@ -36,8 +36,8 @@ namespace ads.feira.domain.tests.Identities
         public void AddReview_ShouldAddReviewToCollection()
         {
             // Arrange
-            var user = CognitoUser.Create(1, "testuser@example.com", "testuser", "xxxx", "sadfsdf", true, true, "admin");
-            var review = Review.Create(1, 1, "reviewContent",2, 5);
+            var user = CognitoUser.Create(Guid.Parse("4B660458-AC10-48BA-8226-A8A84F302BC7"), "testuser@example.com", "testuser", "xxxx", "sadfsdf", true, true, "admin");
+            var review = Review.Create(1, Guid.Parse("4B660458-AC10-48BA-8226-A8A84F302BC7"), "reviewContent",2, 5);
 
             // Act
             user.Reviews.Add(review);
@@ -50,7 +50,7 @@ namespace ads.feira.domain.tests.Identities
         public void AddRedeemedCoupon_ShouldAddCouponToCollection()
         {
             // Arrange
-            var user = CognitoUser.Create(1, "testuser@example.com", "testuser", "xxxx", "sadfsdf", true, true, "admin");
+            var user = CognitoUser.Create(Guid.Parse("4B660458-AC10-48BA-8226-A8A84F302BC7"), "testuser@example.com", "testuser", "xxxx", "sadfsdf", true, true, "admin");
             var coupon = Cupon.Create(1, "name", "code", "description", DateTime.UtcNow.AddDays(1), 10, Enums.Cupons.DiscountTypeEnum.Percentage);
 
             // Act
@@ -64,8 +64,8 @@ namespace ads.feira.domain.tests.Identities
         public void AddStore_ShouldAddStoreToCollection()
         {
             // Arrange
-            var user = CognitoUser.Create(1, "testuser@example.com", "testuser", "xxxx", "sadfsdf", true, true, "admin");
-            var store = Store.Create(1, "string Owner", "name", 2, "description", "assets", "storeNumbere", false, "locations"); // Supondo que Store seja uma classe válida
+            var user = CognitoUser.Create(Guid.Parse("4B660458-AC10-48BA-8226-A8A84F302BC7"), "testuser@example.com", "testuser", "xxxx", "sadfsdf", true, true, "admin");
+            var store = Store.Create(1, Guid.Parse("4B660458-AC10-48BA-8226-A8A84F302BC7"), "name", 2, "description", "assets", "storeNumbere", false, "locations"); // Supondo que Store seja uma classe válida
 
             // Act
             user.Stores.Add(store);

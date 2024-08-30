@@ -1,6 +1,6 @@
 ﻿using ads.feira.domain.Entity.Categories;
 using ads.feira.domain.Entity.Cupons;
-using ads.feira.domain.Entity.Identity;
+using ads.feira.domain.Entity.Accounts;
 using ads.feira.domain.Entity.Products;
 using ads.feira.domain.Entity.Reviews;
 using ads.feira.domain.Entity.Stores;

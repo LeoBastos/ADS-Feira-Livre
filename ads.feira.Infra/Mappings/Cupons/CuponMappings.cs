@@ -8,8 +8,7 @@ namespace ads.feira.Infra.Mappings.Cupons
     {
         public void Configure(EntityTypeBuilder<Cupon> builder)
         {
-            builder.HasKey(c => c.Id);
-            builder.Property(c => c.Id).ValueGeneratedOnAdd();
+            builder.HasKey(c => c.Id);            
             builder.Property(c => c.Name).IsRequired().HasMaxLength(100);
             builder.Property(c => c.Code).IsRequired().HasMaxLength(50);
             builder.Property(c => c.Description).IsRequired().HasMaxLength(500);
@@ -24,6 +23,12 @@ namespace ads.feira.Infra.Mappings.Cupons
             builder.HasMany(c => c.Stores)
                 .WithMany(s => s.AvailableCupons)
                 .UsingEntity(j => j.ToTable("StoreCupons"));
+
+            builder.HasMany(c => c.Stores)
+                 .WithMany(s => s.AvailableCupons);
+
+            builder.HasMany(c => c.Products)
+                .WithMany(p => p.AvailableCoupons);           
         }
     }
 }

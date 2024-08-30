@@ -8,8 +8,7 @@ namespace ads.feira.Infra.Mappings.Products
     {
         public void Configure(EntityTypeBuilder<Product> builder)
         {  
-            builder.HasKey(p => p.Id);
-            builder.Property(p => p.Id).ValueGeneratedOnAdd();
+            builder.HasKey(p => p.Id);            
             builder.Property(p => p.StoreId).IsRequired();
             builder.Property(p => p.CategoryId).IsRequired();
             builder.Property(p => p.Name).IsRequired().HasMaxLength(100);
@@ -27,6 +26,9 @@ namespace ads.feira.Infra.Mappings.Products
                 .WithMany(c => c.Products)
                 .HasForeignKey(p => p.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(p => p.AvailableCoupons)
+               .WithMany(c => c.Products);          
         }
     }
 }

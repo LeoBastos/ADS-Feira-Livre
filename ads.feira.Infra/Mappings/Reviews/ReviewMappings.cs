@@ -8,8 +8,7 @@ namespace ads.feira.Infra.Mappings.Reviews
     {
         public void Configure(EntityTypeBuilder<Review> builder)
         {      
-            builder.HasKey(r => r.Id);
-            builder.Property(r => r.Id).ValueGeneratedOnAdd();
+            builder.HasKey(r => r.Id);            
             builder.Property(r => r.UserId).IsRequired();
             builder.Property(r => r.ReviewContent).IsRequired().HasMaxLength(300);
             builder.Property(r => r.StoreId).IsRequired();
@@ -23,7 +22,7 @@ namespace ads.feira.Infra.Mappings.Reviews
             builder.HasOne(r => r.User)
                 .WithMany(u => u.Reviews)
                 .HasForeignKey(r => r.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict);            
         }
     }
 }

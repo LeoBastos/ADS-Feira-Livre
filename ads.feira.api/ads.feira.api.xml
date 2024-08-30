@@ -1,0 +1,24 @@
+﻿<?xml version="1.0"?>
+<doc>
+	<assembly>
+		<name>ads.feira.api</name>
+	</assembly>
+	<members>
+		<member name="M:ads.feira.api.Controllers.AccountController.Login(ads.feira.api.Models.Accounts.LoginViewModel)">
+			<summary>
+				Faz o login no aplicativo
+			</summary>
+		</member>
+		<member name="M:ads.feira.api.Controllers.AccountController.Register(ads.feira.api.Models.Accounts.RegisterViewModel)">
+			<summary>
+				Insere um novo cliente.
+			</summary>			
+		</member>
+		<member name="M:ads.feira.api.Controllers.AccountController.UpdateUser(ads.feira.api.Models.Accounts.UpdateCognitorUserViewModel)">
+			<summary>
+				Atualiza os dados de um Cliente
+			</summary>
+			<param name="novoCliente"></param>
+		</member>
+	</members>
+</doc>

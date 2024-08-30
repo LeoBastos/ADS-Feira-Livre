@@ -16,7 +16,7 @@ namespace ads.feira.domain.Entity.Products
         }
 
         public int StoreId { get; private set; }
-        public int CategoryId { get; private set; }
+        public int CategoryId { get; private set; }    
         public string Name { get; private set; }
         public string Description { get; private set; }
         public string Assets { get; private set; }

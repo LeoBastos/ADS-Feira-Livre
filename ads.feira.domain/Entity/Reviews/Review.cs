@@ -1,4 +1,4 @@
-﻿using ads.feira.domain.Entity.Identity;
+﻿using ads.feira.domain.Entity.Accounts;
 using ads.feira.domain.Entity.Stores;
 using ads.feira.domain.Validation;
 
@@ -8,14 +8,14 @@ namespace ads.feira.domain.Entity.Reviews
     {
         private Review() { }
 
-        public Review(int id, int userId, string reviewContent, int storeId, int rate)
+        public Review(int id, Guid userId, string reviewContent, int storeId, int rate)
         {
-            ValidateDomain(id, userId, reviewContent, storeId, rate);            
+            ValidateDomain(id, userId, reviewContent, storeId, rate);
         }
 
-        public int UserId { get; private set; }
+        public Guid UserId { get; private set; }
         public string ReviewContent { get; private set; }
-        public int StoreId { get; private set; }       
+        public int StoreId { get; private set; }
         public int Rate { get; private set; }
 
         public Store Store { get; private set; }
@@ -23,12 +23,12 @@ namespace ads.feira.domain.Entity.Reviews
 
 
 
-        public static Review Create(int id, int userId, string reviewContent, int storeId, int rate)
+        public static Review Create(int id, Guid userId, string reviewContent, int storeId, int rate)
         {
             return new Review(id, userId, reviewContent, storeId, rate);
         }
 
-        public void Update(int id, int userId, string reviewContent, int storeId, int rate)
+        public void Update(int id, Guid userId, string reviewContent, int storeId, int rate)
         {
             ValidateDomain(id, userId, reviewContent, storeId, rate);
         }
@@ -38,11 +38,11 @@ namespace ads.feira.domain.Entity.Reviews
             IsActive = false;
         }
 
-        private void ValidateDomain(int id, int userId, string reviewContent, int storeId, int rate)
+        private void ValidateDomain(int id, Guid userId, string reviewContent, int storeId, int rate)
         {
             DomainExceptionValidation.When(id < 0, "Id inválido.");
-            DomainExceptionValidation.When(userId < 0, "Id inválido.");
-            DomainExceptionValidation.When(storeId < 0, "Id inválido.");           
+            DomainExceptionValidation.When(userId.ToString().Length < 0, "Id inválido.");
+            DomainExceptionValidation.When(storeId < 0, "Id inválido.");
 
             DomainExceptionValidation.When(string.IsNullOrEmpty(reviewContent), "Review não pode ser nulo.");
             DomainExceptionValidation.When(reviewContent.Length < 3, "Minimo de 3 caracteres.");

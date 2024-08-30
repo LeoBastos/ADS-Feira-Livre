@@ -19,15 +19,19 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-    <Folder Include="ApiMappings\" />
     <Folder Include="Middlewares\" />
-    <Folder Include="Models\" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ads.feira.application\ads.feira.application.csproj" />
     <ProjectReference Include="..\ads.feira.domain\ads.feira.domain.csproj" />
     <ProjectReference Include="..\ads.feira.Infra\ads.feira.Infra.csproj" />
   </ItemGroup>
+
+	<PropertyGroup>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<NoWarn>$(NoWarn);1591</NoWarn>
+		<!-- Opcional: Suprime os avisos de falta de documentação -->
+	</PropertyGroup>
 
 </Project>

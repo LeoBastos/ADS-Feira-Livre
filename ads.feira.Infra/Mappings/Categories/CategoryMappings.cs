@@ -9,27 +9,17 @@ namespace ads.feira.Infra.Mappings.Categories
         public void Configure(EntityTypeBuilder<Category> builder)
         {
             builder.HasKey(c => c.Id);
-            builder.Property(c => c.Id).ValueGeneratedOnAdd();
             builder.Property(c => c.Name).IsRequired().HasMaxLength(100);
-            builder.Property(c => c.Type).IsRequired();
-            builder.Property(c => c.Description).IsRequired().HasMaxLength(500);
-            builder.Property(c => c.Assets).HasMaxLength(250);
-            builder.Property(c => c.CreatedById).IsRequired();
-
-            builder.HasOne(c => c.CreatedBy)
-                .WithMany()
-                .HasForeignKey(c => c.CreatedById)
-                .OnDelete(DeleteBehavior.Restrict);
-
+            builder.Property(c => c.Type).HasConversion<string>().IsRequired();
+            builder.Property(c => c.Description).IsRequired();
+            builder.Property(c => c.Assets).HasMaxLength(250);                       
             builder.HasMany(c => c.Products)
                 .WithOne(p => p.Category)
-                .HasForeignKey(p => p.CategoryId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(p => p.CategoryId);
 
             builder.HasMany(c => c.Stores)
                 .WithOne(s => s.Category)
-                .HasForeignKey(s => s.CategoryId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(s => s.CategoryId);
         }
     }
 }

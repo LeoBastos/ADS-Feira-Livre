@@ -54,8 +54,8 @@ namespace ads.feira.Infra.Migrations
 
             modelBuilder.Entity("UserRedeemedCoupons", b =>
                 {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("CuponId")
                         .HasColumnType("int");
@@ -67,19 +67,57 @@ namespace ads.feira.Infra.Migrations
                     b.ToTable("UserRedeemedCoupons", (string)null);
                 });
 
-            modelBuilder.Entity("UserStores", b =>
+            modelBuilder.Entity("ads.feira.domain.Entity.Accounts.CognitoUser", b =>
                 {
-                    b.Property<int>("StoreId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<string>("Assets")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
-                    b.HasKey("StoreId", "UserId");
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
-                    b.HasIndex("UserId");
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
-                    b.ToTable("UserStores", (string)null);
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("PrivacyAccept")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Roles")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TosAccept")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("_Deleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("_Insert")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("_Update")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("ads.feira.domain.Entity.Categories.Category", b =>
@@ -95,13 +133,9 @@ namespace ads.feira.Infra.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
-                    b.Property<int>("CreatedById")
-                        .HasColumnType("int");
-
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -111,8 +145,9 @@ namespace ads.feira.Infra.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("_Deleted")
                         .HasColumnType("bit");
@@ -124,8 +159,6 @@ namespace ads.feira.Infra.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
 
                     b.ToTable("Categories");
                 });
@@ -177,61 +210,6 @@ namespace ads.feira.Infra.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Cupons");
-                });
-
-            modelBuilder.Entity("ads.feira.domain.Entity.Identity.CognitoUser", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Assets")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<bool>("PrivacyAccept")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Roles")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TosAccept")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("_Deleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("_Insert")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("_Update")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("ads.feira.domain.Entity.Products.Product", b =>
@@ -312,8 +290,8 @@ namespace ads.feira.Infra.Migrations
                     b.Property<int>("StoreId")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("_Deleted")
                         .HasColumnType("bit");
@@ -351,8 +329,7 @@ namespace ads.feira.Infra.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("HasDebt")
                         .HasColumnType("bit");
@@ -362,8 +339,7 @@ namespace ads.feira.Infra.Migrations
 
                     b.Property<string>("Locations")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -372,13 +348,10 @@ namespace ads.feira.Infra.Migrations
 
                     b.Property<string>("StoreNumber")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("StoreOwner")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<Guid>("StoreOwnerId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("_Deleted")
                         .HasColumnType("bit");
@@ -392,6 +365,8 @@ namespace ads.feira.Infra.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("StoreOwnerId");
 
                     b.ToTable("Stores");
                 });
@@ -434,37 +409,11 @@ namespace ads.feira.Infra.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ads.feira.domain.Entity.Identity.CognitoUser", null)
+                    b.HasOne("ads.feira.domain.Entity.Accounts.CognitoUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("UserStores", b =>
-                {
-                    b.HasOne("ads.feira.domain.Entity.Stores.Store", null)
-                        .WithMany()
-                        .HasForeignKey("StoreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ads.feira.domain.Entity.Identity.CognitoUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ads.feira.domain.Entity.Categories.Category", b =>
-                {
-                    b.HasOne("ads.feira.domain.Entity.Identity.CognitoUser", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("CreatedBy");
                 });
 
             modelBuilder.Entity("ads.feira.domain.Entity.Products.Product", b =>
@@ -494,7 +443,7 @@ namespace ads.feira.Infra.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ads.feira.domain.Entity.Identity.CognitoUser", "User")
+                    b.HasOne("ads.feira.domain.Entity.Accounts.CognitoUser", "User")
                         .WithMany("Reviews")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -510,10 +459,23 @@ namespace ads.feira.Infra.Migrations
                     b.HasOne("ads.feira.domain.Entity.Categories.Category", "Category")
                         .WithMany("Stores")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ads.feira.domain.Entity.Accounts.CognitoUser", null)
+                        .WithMany("Stores")
+                        .HasForeignKey("StoreOwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("ads.feira.domain.Entity.Accounts.CognitoUser", b =>
+                {
+                    b.Navigation("Reviews");
+
+                    b.Navigation("Stores");
                 });
 
             modelBuilder.Entity("ads.feira.domain.Entity.Categories.Category", b =>
@@ -521,11 +483,6 @@ namespace ads.feira.Infra.Migrations
                     b.Navigation("Products");
 
                     b.Navigation("Stores");
-                });
-
-            modelBuilder.Entity("ads.feira.domain.Entity.Identity.CognitoUser", b =>
-                {
-                    b.Navigation("Reviews");
                 });
 
             modelBuilder.Entity("ads.feira.domain.Entity.Stores.Store", b =>

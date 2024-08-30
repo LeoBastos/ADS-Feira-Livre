@@ -25,6 +25,8 @@ namespace ads.feira.Infra.Repositories.Categories
         public async Task<Category> GetByIdAsync(int id)
         {
             return await _context.Categories
+                    .Include(c => c.Products)
+                    .Include(c => c.Stores)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(t => t.Id == id);
         }
@@ -48,6 +50,8 @@ namespace ads.feira.Infra.Repositories.Categories
         public async Task<IEnumerable<Category>> GetAllAsync()
         {
             return await _context.Categories
+                .Include(c => c.Products)
+                .Include(c => c.Stores)
                .AsNoTracking()
                .OrderBy(t => t.Name)
                .ToListAsync();

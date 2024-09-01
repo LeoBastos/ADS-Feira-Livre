@@ -10,7 +10,7 @@ namespace ads.feira.domain.tests.Stores
         public void CreateStore_WithValidParameters_ResultObjectValidState()
         {
             // Act
-            Action action = () => new Store(1, Guid.Parse("4B660458-AC10-48BA-8226-A8A84F302BC7"), "name", 1, "description", "imagens", "storeNumber", false, "locations");
+            Action action = () => new Store(1, "4B660458-AC10-48BA-8226-A8A84F302BC7", "name", 1, "description", "imagens", "storeNumber", false, "locations");
 
             // Assert
             action.Should()
@@ -21,7 +21,7 @@ namespace ads.feira.domain.tests.Stores
         public void CreateStore_NegativeIdValue_DomainExceptionInvalidId()
         {
             // Act
-            Action action = () => new Store(-1, Guid.Parse("4B660458-AC10-48BA-8226-A8A84F302BC7"), "name", 1, "description", "imagens", "storeNumber", false, "locations");
+            Action action = () => new Store(-1, "4B660458-AC10-48BA-8226-A8A84F302BC7", "name", 1, "description", "imagens", "storeNumber", false, "locations");
 
             // Assert
             action.Should()
@@ -44,7 +44,7 @@ namespace ads.feira.domain.tests.Stores
         public void CreateStoreName_WithNullValue_DomainExceptionShortName()
         {
             // Act
-            Action action = () => new Store(1, Guid.Parse("4B660458-AC10-48BA-8226-A8A84F302BC7"), null, 1, "description", "imagens", "storeNumber", false, "locations");
+            Action action = () => new Store(1, "4B660458-AC10-48BA-8226-A8A84F302BC7", null, 1, "description", "imagens", "storeNumber", false, "locations");
 
             action.Should()
                 .Throw<Validation.DomainExceptionValidation>()
@@ -55,7 +55,7 @@ namespace ads.feira.domain.tests.Stores
         public void CreateStoreName_ShortReviewContentValue_DomainExceptionShortName()
         {
             // Act
-            Action action = () => new Store(1, Guid.Parse("4B660458-AC10-48BA-8226-A8A84F302BC7"), "n", 1, "description", "imagens", "storeNumber", false, "locations");
+            Action action = () => new Store(1, "4B660458-AC10-48BA-8226-A8A84F302BC7", "n", 1, "description", "imagens", "storeNumber", false, "locations");
 
             action.Should()
                 .Throw<Validation.DomainExceptionValidation>()
@@ -66,7 +66,7 @@ namespace ads.feira.domain.tests.Stores
         public void CreateStore_WithCategoryIdNullValue_DomainExceptionShortName()
         {
             // Act
-            Action action = () => new Store(1, Guid.Parse("4B660458-AC10-48BA-8226-A8A84F302BC7"), "name", -1, "description", "imagens", "storeNumber", false, "locations");
+            Action action = () => new Store(1, "4B660458-AC10-48BA-8226-A8A84F302BC7", "name", -1, "description", "imagens", "storeNumber", false, "locations");
 
             action.Should()
                 .Throw<Validation.DomainExceptionValidation>()
@@ -77,7 +77,7 @@ namespace ads.feira.domain.tests.Stores
         public void CreateDescription_WithNullValue_DomainExceptionShortName()
         {
             // Act
-            Action action = () => new Store(1, Guid.Parse("4B660458-AC10-48BA-8226-A8A84F302BC7"), "name", 1, null, "imagens", "storeNumber", false, "locations");
+            Action action = () => new Store(1, "4B660458-AC10-48BA-8226-A8A84F302BC7", "name", 1, null, "imagens", "storeNumber", false, "locations");
 
             action.Should()
                 .Throw<Validation.DomainExceptionValidation>()
@@ -88,7 +88,7 @@ namespace ads.feira.domain.tests.Stores
         public void CreateDescription_ShorttValue_DomainExceptionShortName()
         {
             // Act
-            Action action = () => new Store(1, Guid.Parse("4B660458-AC10-48BA-8226-A8A84F302BC7"), "name", 1, "de", "imagens", "storeNumber", false, "locations");
+            Action action = () => new Store(1, "4B660458-AC10-48BA-8226-A8A84F302BC7", "name", 1, "de", "imagens", "storeNumber", false, "locations");
 
             action.Should()
                 .Throw<Validation.DomainExceptionValidation>()
@@ -99,7 +99,7 @@ namespace ads.feira.domain.tests.Stores
         public void CreateStoreNumber_WithNullValue_DomainExceptionShortName()
         {
             // Act
-            Action action = () => new Store(1, Guid.Parse("4B660458-AC10-48BA-8226-A8A84F302BC7"), "name", 1, "description", "imagens", null, false, "locations");
+            Action action = () => new Store(1, "4B660458-AC10-48BA-8226-A8A84F302BC7", "name", 1, "description", "imagens", null, false, "locations");
 
             action.Should()
                 .Throw<Validation.DomainExceptionValidation>()

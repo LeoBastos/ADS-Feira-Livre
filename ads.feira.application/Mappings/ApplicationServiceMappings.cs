@@ -1,13 +1,12 @@
-﻿using ads.feira.application.CQRS.Accounts.Commands;
-using ads.feira.application.CQRS.Categories.Commands;
+﻿using ads.feira.application.CQRS.Categories.Commands;
 using ads.feira.application.CQRS.Cupons.Commands;
 using ads.feira.application.DTO.Accounts;
 using ads.feira.application.DTO.Categories;
 using ads.feira.application.DTO.Cupons;
 using ads.feira.application.DTO.Products;
+using ads.feira.domain.Entity.Accounts;
 using ads.feira.domain.Entity.Categories;
 using ads.feira.domain.Entity.Cupons;
-using ads.feira.domain.Entity.Accounts;
 using ads.feira.domain.Entity.Products;
 using AutoMapper;
 
@@ -30,14 +29,10 @@ namespace ads.feira.application.Mappings
 
             #endregion
 
-            #region CognitoUser
-            CreateMap<CognitoUser, CognitoUserDTO>().ReverseMap();
-            CreateMap<CognitoUser, CreateCognitoUserDTO>().ReverseMap();
-            CreateMap<CognitoUser, UpdateCognitoUserDTO>().ReverseMap();
-            CreateMap<CognitoUser, CognitoUserCreateCommand>().ReverseMap();
-            CreateMap<CognitoUser, CognitoUserUpdateCommand>().ReverseMap();
-
-            CreateMap<CreateCognitoUserDTO, CognitoUserCreateCommand>();
+            #region Accounts
+            CreateMap<Account, AccountDTO>().ReverseMap();
+            CreateMap<Account, AccountUpdateDTO>().ReverseMap();
+            CreateMap<Account, AccountResponseDTO>().ReverseMap();
             #endregion
 
             #region Cupon

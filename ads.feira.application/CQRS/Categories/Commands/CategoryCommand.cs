@@ -16,7 +16,7 @@ namespace ads.feira.application.CQRS.Categories.Commands
         public string Assets { get; set; }
 
         public int CreatedById { get; set; }
-        public CognitoUser CreatedBy { get; set; }
+        public Account CreatedBy { get; set; }
 
         public ICollection<Product> Products { get; set; } = new List<Product>();
         public ICollection<Store> Stores { get; set; } = new List<Store>();

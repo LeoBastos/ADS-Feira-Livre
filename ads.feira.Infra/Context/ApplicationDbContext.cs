@@ -5,14 +5,16 @@ using ads.feira.domain.Entity.Products;
 using ads.feira.domain.Entity.Reviews;
 using ads.feira.domain.Entity.Stores;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace ads.feira.Infra.Context
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<Account>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
-
-        public DbSet<CognitoUser> Users { get; set; }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) :
+            base(options)
+        { }
+        
         public DbSet<Category> Categories { get; set; }
         public DbSet<Cupon> Cupons { get; set; }
         public DbSet<Product> Products { get; set; }

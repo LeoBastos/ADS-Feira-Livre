@@ -8,27 +8,27 @@ namespace ads.feira.domain.Entity.Reviews
     {
         private Review() { }
 
-        public Review(int id, Guid userId, string reviewContent, int storeId, int rate)
+        public Review(int id, string userId, string reviewContent, int storeId, int rate)
         {
             ValidateDomain(id, userId, reviewContent, storeId, rate);
         }
 
-        public Guid UserId { get; private set; }
+        public string UserId { get; private set; }
         public string ReviewContent { get; private set; }
         public int StoreId { get; private set; }
         public int Rate { get; private set; }
 
         public Store Store { get; private set; }
-        public CognitoUser User { get; private set; }
+        public Account User { get; private set; }
 
 
 
-        public static Review Create(int id, Guid userId, string reviewContent, int storeId, int rate)
+        public static Review Create(int id, string userId, string reviewContent, int storeId, int rate)
         {
             return new Review(id, userId, reviewContent, storeId, rate);
         }
 
-        public void Update(int id, Guid userId, string reviewContent, int storeId, int rate)
+        public void Update(int id, string userId, string reviewContent, int storeId, int rate)
         {
             ValidateDomain(id, userId, reviewContent, storeId, rate);
         }
@@ -38,7 +38,7 @@ namespace ads.feira.domain.Entity.Reviews
             IsActive = false;
         }
 
-        private void ValidateDomain(int id, Guid userId, string reviewContent, int storeId, int rate)
+        private void ValidateDomain(int id, string userId, string reviewContent, int storeId, int rate)
         {
             DomainExceptionValidation.When(id < 0, "Id inválido.");
             DomainExceptionValidation.When(userId.ToString().Length < 0, "Id inválido.");

@@ -20,10 +20,9 @@ namespace ads.feira.api.ApiMappings
             CreateMap<UpdateCategoryDTO, UpdateCategoryViewModel>().ReverseMap();
             #endregion
 
-            #region CognitoUser
-            CreateMap<CognitoUserDTO, UpdateCognitorUserViewModel>().ReverseMap();
-            CreateMap<CreateCognitoUserDTO, RegisterViewModel>().ReverseMap(); 
-            CreateMap<CreateCognitoUserDTO, RegisterInternalUserViewModel>().ReverseMap();
+            #region Accounts
+          
+
             #endregion
 
             #region Cupon

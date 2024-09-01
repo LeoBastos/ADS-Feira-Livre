@@ -28,6 +28,6 @@ namespace ads.feira.application.DTO.Stores
         public ICollection<Product> Products { get; set; } = new List<Product>();
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
         public ICollection<Cupon> AvailableCupons { get; set; } = new List<Cupon>();
-        public ICollection<CognitoUser> Users { get; set; } = new List<CognitoUser>();
+        public ICollection<Account> Users { get; set; } = new List<Account>();
     }
 }

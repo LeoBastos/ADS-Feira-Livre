@@ -1,343 +1,344 @@
 ﻿using ads.feira.api.Helpers;
 using ads.feira.api.Models.Accounts;
-using ads.feira.api.Models.Products;
 using ads.feira.application.DTO.Accounts;
-using ads.feira.application.DTO.Categories;
 using ads.feira.application.Interfaces.Accounts;
-using Amazon;
-using Amazon.CognitoIdentityProvider;
-using Amazon.CognitoIdentityProvider.Model;
-using AutoMapper;
+using ads.feira.domain.Entity.Accounts;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace ads.feira.api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-   
     public class AccountController : ControllerBase
     {
-        private readonly IConfiguration _config;
-        private readonly RegionEndpoint _region;
-        private readonly string _awsClientId;
-        private readonly string _userPoolId;
-        private readonly ICognitoUserService _userService;
-        private readonly ILogger<AccountController> _logger;
-        private readonly IMapper _mapper;
-        private const string CUSTOMER_GROUP_NAME = "Customers";
-        private const string USERS_GROUP_NAME = "Users";
+        private readonly UserManager<Account> _userManager;
+        private readonly IAccountServices _accountService;
+        private readonly JwtSettings _jwtSettings;
+        private readonly IEmailSender _emailService;
 
-        public AccountController(IConfiguration config, ICognitoUserService userService, ILogger<AccountController> logger, IMapper mapper)
+        public AccountController(
+            UserManager<Account> userManager,
+            IAccountServices accountService,
+            IOptions<JwtSettings> jwtSettings,
+            IEmailSender emailService)
         {
-            _config = config;
-            _region = RegionEndpoint.GetBySystemName(config["AWS:Region"]);
-            _awsClientId = config["AWS:ClientId"];
-            _userService = userService;
-            _logger = logger;
-            _mapper = mapper;
-            _userPoolId = config["AWS:PoolId"];
+            _userManager = userManager;
+            _accountService = accountService;
+            _jwtSettings = jwtSettings.Value;
+            _emailService = emailService;
         }
-
-
-
 
         /// <summary>
-        /// Insere um novo cliente.
+        ///  - Registra um Cliente
         /// </summary>
-        [AllowAnonymous]
-        [HttpPost("login")]
-        [ProducesResponseType(typeof(LoginViewModel), StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Login([FromBody] LoginViewModel model)
+        [HttpPost("register/customer")]
+        public async Task<IActionResult> RegisterCustomer([FromForm] RegisterViewModel model)
         {
-            var provider = new AmazonCognitoIdentityProviderClient(_region);
-            var request = new InitiateAuthRequest
+            return await RegisterUser(model, UserType.Customer);
+        }
+
+        /// <summary>
+        ///  - Registra um Lojista
+        /// </summary>
+        [HttpPost("register/storeowner")]
+        public async Task<IActionResult> RegisterStoreOwner([FromForm] RegisterViewModel model)
+        {
+            return await RegisterUser(model, UserType.StoreOwner);
+        }
+
+        private async Task<IActionResult> RegisterUser(RegisterViewModel model, UserType userType)
+        {
+            if (!ModelState.IsValid || model.TosAccept == false || model.PrivacyAccept == false)
             {
-                AuthFlow = AuthFlowType.USER_PASSWORD_AUTH,
-                ClientId = _awsClientId,
-                AuthParameters = new Dictionary<string, string>
-                         {
-                             {"USERNAME", model.Username},
-                             {"PASSWORD", model.Password}
-                         }
+                return BadRequest(ModelState);
+            }
+
+            var user = new Account
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                Name = model.Name,
+                Assets = await FilesExtensions.UploadImage(model.Assets) ?? "~/images/noimage.png",
+                UserType = userType,
+                TosAccept = model.TosAccept,
+                PrivacyAccept = model.PrivacyAccept,
             };
 
-            try
-            {
-                var response = await provider.InitiateAuthAsync(request);
+            var result = await _userManager.CreateAsync(user, model.Password);
 
-                return Ok(response);
-            }
-            catch (Exception ex)
+            if (result.Succeeded)
             {
-                return BadRequest($"Login failed: {ex.Message}");
+                await _userManager.AddToRoleAsync(user, userType.ToString());
+
+                // Generate email confirmation token
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, token = token }, Request.Scheme);
+
+                // Send confirmation email
+                await _emailService.SendEmailAsync(user.Email, "Confirm your email", $"Please confirm your account by clicking this link: {confirmationLink}");
+
+                return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, new { Message = $"User {user.Email} created successfully. Please check your email to confirm your account." });
             }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            return BadRequest(ModelState);
         }
 
-        [AllowAnonymous]
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromForm] RegisterViewModel model)
+        /// <summary>
+        /// - Confirmação por Email
+        /// </summary>
+        [HttpGet("confirm-email")]
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
         {
-            try
+            if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(token))
             {
-                var provider = new AmazonCognitoIdentityProviderClient(_region);
-                var signUpRequest = new SignUpRequest
-                {
-                    ClientId = _awsClientId,
-                    Username = model.Email,
-                    Password = model.Password,                  
-
-                    UserAttributes = new List<AttributeType>
-                    {
-                        new AttributeType { Name = "name", Value = model.Name },
-                        new AttributeType { Name = "email", Value = model.Email },                        
-                    }
-                };
-
-                var cognitoResponse = await provider.SignUpAsync(signUpRequest);
-
-                var cognitoUserId = cognitoResponse.UserSub;
-
-                await AddUserToGroup(provider, cognitoUserId, CUSTOMER_GROUP_NAME);
-
-                // Create local user
-                var localUser = new CreateCognitoUserDTO(
-                    Guid.Parse(cognitoUserId),
-                    model.Email,
-                    model.Name,
-                    model.Description ?? "",
-                    await FilesExtensions.UploadImage(model.Assets) ?? "",
-                    model.TosAccept,
-                    model.PrivacyAccept,
-                    model.Roles = "Customers"                    
-                );
-                await _userService.Create(localUser);
-
-                return Ok(new { Message = "User registered successfully", UserId = cognitoUserId });
+                return BadRequest("Invalid email confirmation token");
             }
-            catch (Exception ex)
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
             {
-                _logger.LogError(ex, "Registration failed");
-                return BadRequest($"Registration failed: {ex.Message}");
+                return NotFound($"Unable to load user with ID '{userId}'.");
             }
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+            if (!result.Succeeded)
+            {
+                return BadRequest("Error confirming your email.");
+            }
+
+            return Ok("Thank you for confirming your email.");
         }
 
-        [Authorize]
-        [HttpPut("update")]
-        public async Task<IActionResult> UpdateUser([FromBody] UpdateCognitorUserViewModel model)
+        /// <summary>
+        ///  Efetua Login na Plataforma
+        /// </summary>
+        [HttpPost("login")]
+        public async Task<ActionResult<UserToken>> Login([FromBody] LoginViewModel model)
         {
-            try
-            {               
-                var provider = new AmazonCognitoIdentityProviderClient(_region);
-                var updateRequest = new AdminUpdateUserAttributesRequest
-                {
-                    UserPoolId = _config["AWS:UserPoolId"],
-                    Username = model.Email,
-                    UserAttributes = new List<AttributeType>
+            if (!ModelState.IsValid)
             {
-                new AttributeType { Name = "name", Value = model.Name },
+                return BadRequest(ModelState);
             }
-                };
 
-                await provider.AdminUpdateUserAttributesAsync(updateRequest);
-
-                // Update local user
-                var localUser = await _userService.GetById(model.Id);
-                if (localUser == null)
-                {
-                    return NotFound("User not found");
-                }
-                localUser.Id = model.Id;
-                localUser.Email = model.Email;
-                localUser.Name = model.Name;
-                localUser.Description = model.Description;
-                localUser.Assets = model.Assets;
-                localUser.TosAccept = model.TosAccept ?? false;
-                localUser.PrivacyAccept = model.PrivacyAccept ?? false;
-                localUser.Roles = model.Roles;
-
-
-                //localUser.Update(model.Id, model.Email, model.Name, model.Description, model.Assets, model.TosAccept, model.PrivacyAccept, model.Roles);
-                await _userService.Update(localUser);
-
-                return Ok("User updated successfully");
-            }
-            catch (Exception ex)
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
             {
-                _logger.LogError(ex, "User update failed");
-                return BadRequest($"Update failed: {ex.Message}");
+                return Unauthorized("Invalid email or password");
             }
+
+            if (!user.EmailConfirmed)
+            {
+                return Unauthorized("Email not confirmed. Please check your email for the confirmation link.");
+            }
+
+            var token = await GenerateJwtToken(user);
+            return Ok(new UserToken { Token = token, Expiration = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationInMinutes) });
         }
 
-       
-        [HttpPost("confirm")]
-        public async Task<IActionResult> ConfirmRegistration([FromBody] ConfirmViewModel model)
-        {
-            try
-            {
-                var provider = new AmazonCognitoIdentityProviderClient(_region);
-                var confirmRequest = new ConfirmSignUpRequest
-                {
-                    ClientId = _awsClientId,
-                    Username = model.Email,
-                    ConfirmationCode = model.ConfirmationCode
-                };
-
-                await provider.ConfirmSignUpAsync(confirmRequest);
-
-                return Ok(new { Message = "User confirmed successfully" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Confirmation failed");
-                return BadRequest($"Confirmation failed: {ex.Message}");
-            }
-        }
-
-        
-        [HttpPost("resend-code")]
-        public async Task<IActionResult> ResendConfirmationCode([FromBody] ResendConfirmationCodeViewModel model)
-        {
-            try
-            {
-                var provider = new AmazonCognitoIdentityProviderClient(_region);
-                var resendRequest = new ResendConfirmationCodeRequest
-                {
-                    ClientId = _awsClientId,
-                    Username = model.Email
-                };
-
-                await provider.ResendConfirmationCodeAsync(resendRequest);
-
-                return Ok(new { Message = "Confirmation code resent successfully" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Resend confirmation code failed");
-                return BadRequest($"Resend confirmation code failed: {ex.Message}");
-            }
-        }
-
-       
+        /// <summary>
+        ///  Esqueceu a Senha
+        /// </summary>
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordViewModel model)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                var provider = new AmazonCognitoIdentityProviderClient(_region);
-                var forgotPasswordRequest = new ForgotPasswordRequest
-                {
-                    ClientId = _awsClientId,
-                    Username = model.Email
-                };
-
-                await provider.ForgotPasswordAsync(forgotPasswordRequest);
-
-                return Ok(new { Message = "Password reset code sent successfully" });
+                return BadRequest(ModelState);
             }
-            catch (Exception ex)
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null || !await _userManager.IsEmailConfirmedAsync(user))
             {
-                _logger.LogError(ex, "Forgot password request failed");
-                return BadRequest($"Forgot password request failed: {ex.Message}");
+                // Don't reveal that the user does not exist or is not confirmed
+                return Ok("If your email is registered and confirmed, you will receive a password reset link shortly.");
             }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var callbackUrl = Url.Action("ResetPassword", "Account", new { email = user.Email, token = token }, Request.Scheme);
+
+            await _emailService.SendEmailAsync(model.Email, "Reset Password",
+                $"Please reset your password by clicking here: {callbackUrl} \n Token: {token}");
+
+            return Ok("If your email is registered and confirmed, you will receive a password reset link shortly.");
         }
 
-        
-        [HttpPost("confirm-forgot-password")]
-        public async Task<IActionResult> ConfirmForgotPassword([FromBody] ConfirmForgotPasswordViewModel model)
+        /// <summary>
+        ///  - Redefinir Senha
+        /// </summary>
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordViewModel model)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                var provider = new AmazonCognitoIdentityProviderClient(_region);
-                var confirmForgotPasswordRequest = new ConfirmForgotPasswordRequest
-                {
-                    ClientId = _awsClientId,
-                    Username = model.Email,
-                    Password = model.NewPassword,
-                    ConfirmationCode = model.ConfirmationCode
-                };
-
-                await provider.ConfirmForgotPasswordAsync(confirmForgotPasswordRequest);
-
-                return Ok(new { Message = "Password reset successfully" });
+                return BadRequest(ModelState);
             }
-            catch (Exception ex)
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
             {
-                _logger.LogError(ex, "Confirm forgot password failed");
-                return BadRequest($"Confirm forgot password failed: {ex.Message}");
+                // Don't reveal that the user does not exist
+                return Ok("Password reset successful.");
             }
-        }
-        
 
-        [HttpPost("register-owner")]
-        public async Task<IActionResult> RegisterInternalUser([FromForm] RegisterInternalUserViewModel model)
-        {
-            try
+            var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+            if (result.Succeeded)
             {
-                var provider = new AmazonCognitoIdentityProviderClient(_region);
-                var signUpRequest = new SignUpRequest
-                {
-                    ClientId = _awsClientId,
-                    Username = model.Email,
-                    Password = model.Password,
-                    UserAttributes = new List<AttributeType>
-                    {
-                        new AttributeType { Name = "name", Value = model.Name },
-                        new AttributeType { Name = "email", Value = model.Email },                        
-                    }
-                };
-
-                var cognitoResponse = await provider.SignUpAsync(signUpRequest);
-                var cognitoUserId = cognitoResponse.UserSub;
-
-                await AddUserToGroup(provider, cognitoUserId, USERS_GROUP_NAME);
-
-                var localUser = new CreateCognitoUserDTO(
-                    Guid.Parse(cognitoUserId),
-                    model.Email,
-                    model.Name,
-                    model.Description ?? "",
-                    await FilesExtensions.UploadImage(model.Assets) ?? "",
-                    true,
-                    true,
-                    "Users"
-                );
-
-                await _userService.Create(localUser);
-
-                // Automatically confirm the user
-                //var confirmRequest = new ConfirmSignUpRequest
-                //{
-                //    ClientId = _awsClientId,
-                //    Username = model.Email,
-                //    ConfirmationCode = "Users"
-                //};
-
-                //await provider.ConfirmSignUpAsync(confirmRequest);
-
-                return Ok(new { Message = "Internal user registered and confirmed successfully", UserId = cognitoUserId });
+                return Ok("Password reset successful.");
             }
-            catch (Exception ex)
+
+            foreach (var error in result.Errors)
             {
-                _logger.LogError(ex, "Internal user registration failed");
-                return BadRequest($"Internal user registration failed: {ex.Message}");
+                ModelState.AddModelError(string.Empty, error.Description);
             }
+
+            return BadRequest(ModelState);
         }
 
-
-        private async Task AddUserToGroup(AmazonCognitoIdentityProviderClient provider, string username, string groupName)
+        /// <summary>
+        ///  - Atualizar Usuário
+        /// </summary>
+        [Authorize]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUser(string id, [FromForm] AccountUpdateDTO model)
         {
-            var request = new AdminAddUserToGroupRequest
+            if (id == null)
             {
-                UserPoolId = _userPoolId,
-                Username = username,
-                GroupName = groupName
+                return BadRequest("Invalid ID");
+            }
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound($"User with ID '{id}' not found.");
+            }
+
+            // Only allow users to update their own profile, unless they're an admin
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) != id && !User.IsInRole("Administrator"))
+            {
+                return Forbid();
+            }
+
+            user.Name = model.Name;
+            user.Email = model.Email;            
+            if (model.Assets != null)
+            {
+                user.Assets = await FilesExtensions.UploadImage(model.Assets);
+            }
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            return NoContent();
+        }
+
+        /// <summary>
+        ///  - Excluir um Usuário
+        /// </summary>
+        [Authorize(Roles = "Administrator")]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound($"User with ID '{id}' not found.");
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            return NoContent();
+        }
+
+        /// <summary>
+        ///  - Buscar Usuário por Id
+        /// </summary>
+        [Authorize]
+        [HttpGet("{id}")]
+        public async Task<ActionResult<AccountResponseDTO>> GetUserById(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user == null)
+            {
+                return NotFound($"User with ID '{id}' not found.");
+            }
+
+            foreach (var claim in User.Claims)
+            {
+                Console.WriteLine($"Type: {claim.Type}, Value: {claim.Value}");
+            }
+
+            var rule = user.Email;
+
+            // Only allow users to view their own profile, unless they're an admin
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) != rule && !User.IsInRole("Admin"))
+            {
+                return Forbid();
+            }
+
+            return Ok(new AccountResponseDTO
+            {               
+                Email = user.Email,
+                Name = user.Name,
+                Assets = user.Assets,     
+                UserType = EnumExtensions.GetDisplayName(user.UserType),
+            });
+        }
+
+        private async Task<string> GenerateJwtToken(Account user)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Id)
             };
 
-            await provider.AdminAddUserToGroupAsync(request);
+            var roles = await _userManager.GetRolesAsync(user);
+            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationInMinutes);
+
+            var token = new JwtSecurityToken(
+                issuer: _jwtSettings.Issuer,
+                audience: _jwtSettings.Audience,
+                claims: claims,
+                expires: expires,
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
+    }
+
+    public class JwtSettings
+    {
+        public string SecretKey { get; set; }
+        public string Issuer { get; set; }
+        public string Audience { get; set; }
+        public int ExpirationInMinutes { get; set; }
     }
 }
 

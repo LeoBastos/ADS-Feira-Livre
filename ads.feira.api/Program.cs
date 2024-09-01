@@ -1,5 +1,7 @@
 using ads.feira.api.ApiMappings;
-using ads.feira.application.CQRS.Accounts.Handlers.Queries;
+using ads.feira.api.Controllers;
+using ads.feira.api.Helpers.EmailSender;
+using ads.feira.api.Helpers.Settings;
 using ads.feira.application.CQRS.Categories.Handlers.Queries;
 using ads.feira.application.CQRS.Cupons.Handlers.Queries;
 using ads.feira.application.CQRS.Products.Handlers.Queries;
@@ -13,6 +15,7 @@ using ads.feira.application.Services.Categories;
 using ads.feira.application.Services.Cupons;
 using ads.feira.application.Services.Products;
 using ads.feira.application.Validators.Categories;
+using ads.feira.domain.Entity.Accounts;
 using ads.feira.domain.Interfaces.Accounts;
 using ads.feira.domain.Interfaces.Categories;
 using ads.feira.domain.Interfaces.Cupons;
@@ -20,6 +23,7 @@ using ads.feira.domain.Interfaces.Products;
 using ads.feira.domain.Interfaces.Reviews;
 using ads.feira.domain.Interfaces.Stores;
 using ads.feira.domain.Interfaces.UnitOfWorks;
+using ads.feira.domain.Seeds;
 using ads.feira.Infra.Context;
 using ads.feira.Infra.Repositories.Accounts;
 using ads.feira.Infra.Repositories.Categories;
@@ -30,12 +34,15 @@ using ads.feira.Infra.Repositories.Stores;
 using ads.feira.Infra.UnitOfWorks;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 using System.Reflection;
+using System.Text;
 
 
 namespace ads.feira.api
@@ -52,29 +59,65 @@ namespace ads.feira.api
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(connection));
 
-            // Configure AWS Cognito
-            builder.Services.AddAuthentication(options =>
+            builder.Services.AddIdentity<Account, IdentityRole>()
+                           .AddEntityFrameworkStores<ApplicationDbContext>()
+                           .AddDefaultTokenProviders();
+
+            builder.Services.Configure<IdentityOptions>(options =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequiredLength = 8;
+            });
+
+            // Configure Auth - Secrets            
+            builder.Configuration.AddUserSecrets<Program>();
+
+            // Configuração do JWT
+            //var jwtSettings = builder.Configuration.GetSection("Jwt");
+            //var key = Encoding.ASCII.GetBytes(jwtSettings["SecretKey"]);
+            builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
+            builder.Services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddJwtBearer(options =>
+            .AddJwtBearer(x =>
             {
-                options.Authority = builder.Configuration["Aws:Authority"];
-                options.TokenValidationParameters = new TokenValidationParameters
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
-                    ValidateAudience = false,
+                    ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    RoleClaimType = "cognito:groups"
+
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"])),
+                    ClockSkew = TimeSpan.Zero
+                    //ValidateIssuerSigningKey = true,
+                    //IssuerSigningKey = new SymmetricSecurityKey(key),
+                    //ValidateIssuer = true,
+                    //ValidIssuer = jwtSettings["Issuer"],
+                    //ValidateAudience = true,
+                    //ValidAudience = jwtSettings["Audience"],
+                    //ValidateLifetime = true,
+                    //ClockSkew = TimeSpan.Zero
                 };
             });
 
-            // AWS Cognitor
-            builder.Services.AddAuthorization();
-            builder.Services.AddCognitoIdentity();
-            builder.Services.AddAWSService<Amazon.CognitoIdentityProvider.IAmazonCognitoIdentityProvider>();
+            // Configuração do serviço de email
+            var emailSettings = builder.Configuration.GetSection("EmailSettings").Get<EmailSettings>();
+            builder.Services.AddSingleton<IEmailSender>(new EmailSender(
+                smtpServer: emailSettings.SmtpServer,
+                smtpPort: emailSettings.SmtpPort,
+                smtpUser: emailSettings.SmtpUser,
+                smtpPass: emailSettings.SmtpPass
+            ));
 
             //Automapper
             builder.Services.AddAutoMapper(typeof(ApplicationServiceMappings), typeof(ApiMapping));
@@ -85,17 +128,16 @@ namespace ads.feira.api
                 cfg.RegisterServicesFromAssembly(typeof(GetCategoryByIdQueryHandler).Assembly);
                 cfg.RegisterServicesFromAssembly(typeof(GetCuponByIdQueryHandler).Assembly);
                 cfg.RegisterServicesFromAssembly(typeof(GetProductByIdQueryHandler).Assembly);
-                cfg.RegisterServicesFromAssembly(typeof(GetCognitoUserByIdQueryHandler).Assembly);
             });
 
             //Services
             builder.Services.AddScoped<ICategoryServices, CategoryServices>();
-            builder.Services.AddScoped<ICognitoUserService, CognitoUserService>();
+            builder.Services.AddScoped<IAccountServices, AccountService>();
             builder.Services.AddScoped<ICuponService, CuponServices>();
             builder.Services.AddScoped<IProductServices, ProductServices>();
 
             //Repositories
-            builder.Services.AddScoped<ICognitoUserRepository, CognitoUserRepository>();
+            builder.Services.AddScoped<IAccountRepository, AccountRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<ICuponRepository, CuponRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
@@ -108,6 +150,9 @@ namespace ads.feira.api
             //Validators
             builder.Services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<CategoryValidator>());
 
+
+            //Roles
+            builder.Services.AddScoped<ISeedUserRoleInitial, SeedUserRoleInitial>();
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
@@ -166,6 +211,9 @@ namespace ads.feira.api
 
             var app = builder.Build();
 
+            //Register Seeds
+            CriarPerfisUsuariosAsync(app);
+
             // Configure o pipeline HTTP
             if (app.Environment.IsDevelopment())
             {
@@ -185,6 +233,18 @@ namespace ads.feira.api
             app.MapControllers();
 
             app.Run();
+
+            async Task CriarPerfisUsuariosAsync(WebApplication app)
+            {
+                var scopedFactory = app.Services.GetService<IServiceScopeFactory>();
+
+                using (var scope = scopedFactory?.CreateScope())
+                {
+                    var service = scope?.ServiceProvider.GetService<ISeedUserRoleInitial>();
+                    await service.SeedRolesAsync();
+                    await service.SeedUsersAsync();
+                }
+            }
         }
     }
 }

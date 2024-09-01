@@ -17,6 +17,6 @@ namespace ads.feira.application.DTO.Reviews
         public int Rate { get; set; }
 
         public Store Store { get; set; }
-        public CognitoUser User { get; set; }
+        public Account User { get; set; }
     }
 }

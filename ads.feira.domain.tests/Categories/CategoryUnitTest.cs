@@ -17,7 +17,7 @@ namespace ads.feira.domain.tests.Categories
             
 
             // Act
-            Action action = () => new Category(1, "Category Name", TypeCategoryEnum.ComidaSalgada, "Categoria Teste", "imagem");
+            Action action = () => new Category(1, "Category Name", "Categoria Teste", "imagem");
 
             // Assert
             action.Should()
@@ -31,7 +31,7 @@ namespace ads.feira.domain.tests.Categories
             
 
             // Act
-            Action action = () => new Category(-1, "Category Name", TypeCategoryEnum.ComidaSalgada, "Categoria Teste", "imagem");
+            Action action = () => new Category(-1, "Category Name", "Categoria Teste", "imagem");
 
             // Assert
             action.Should()
@@ -46,7 +46,7 @@ namespace ads.feira.domain.tests.Categories
             
 
             // Act
-            Action action = () => new Category(1, "Ca", TypeCategoryEnum.ComidaSalgada, "Categoria Teste", "imagem");
+            Action action = () => new Category(1, "Ca",  "Categoria Teste", "imagem");
 
             action.Should()
                 .Throw<Validation.DomainExceptionValidation>()
@@ -60,7 +60,7 @@ namespace ads.feira.domain.tests.Categories
             
 
             // Act
-            Action action = () => new Category(1, "Cadastro teste", TypeCategoryEnum.ComidaSalgada, "C", "imagem");
+            Action action = () => new Category(1, "Cadastro teste", "C", "imagem");
 
             action.Should()
                 .Throw<Validation.DomainExceptionValidation>()
@@ -74,7 +74,7 @@ namespace ads.feira.domain.tests.Categories
            
 
             // Act
-            Action action = () => new Category(1, "", TypeCategoryEnum.ComidaSalgada, "C", "imagem");
+            Action action = () => new Category(1, "", "C", "imagem");
 
             action.Should()
                 .Throw<Validation.DomainExceptionValidation>()
@@ -88,7 +88,7 @@ namespace ads.feira.domain.tests.Categories
            
 
             // Act
-            Action action = () => new Category(1, null, TypeCategoryEnum.ComidaSalgada, "C", "imagem");
+            Action action = () => new Category(1, null, "C", "imagem");
 
             action.Should()
                 .Throw<Validation.DomainExceptionValidation>();
@@ -101,7 +101,7 @@ namespace ads.feira.domain.tests.Categories
             
 
             // Act
-            Action action = () => new Category(1, "Teste", TypeCategoryEnum.ComidaSalgada, null, "imagem");
+            Action action = () => new Category(1, "Teste", null, "imagem");
 
             action.Should()
                 .Throw<Validation.DomainExceptionValidation>();
@@ -114,7 +114,7 @@ namespace ads.feira.domain.tests.Categories
         public void AddProduct_ValidProduct_ShouldAddToCollection()
         {
             // Arrange
-            var category = new Category(1, "Test Category", TypeCategoryEnum.ComidaSalgada, "Description", "assets.jpg");
+            var category = new Category(1, "Test Category", "Description", "assets.jpg");
             var product = new Product(1, 1, category.Id, "Test Product", "Description", "asset.jpg", 10.99m, 0);
 
             // Act
@@ -129,7 +129,7 @@ namespace ads.feira.domain.tests.Categories
         public void AddProduct_NullProduct_ShouldThrowDomainExceptionValidation()
         {
             // Arrange
-            var category = new Category(1, "Test Category", TypeCategoryEnum.Artesanatos, "Description", "assets.jpg");
+            var category = new Category(1, "Test Category", "Description", "assets.jpg");
 
             // Act & Assert
             var exception = Assert.Throws<DomainExceptionValidation>(() => category.AddProduct(null));
@@ -140,7 +140,7 @@ namespace ads.feira.domain.tests.Categories
         public void RemoveProduct_ExistingProduct_ShouldRemoveFromCollection()
         {
             // Arrange
-            var category = new Category(1, "Test Category", TypeCategoryEnum.Consertos, "Description", "assets.jpg");
+            var category = new Category(1, "Test Category", "Description", "assets.jpg");
             var product = new Product(1, 1, category.Id, "Test Product", "Description", "asset.jpg", 10.99m, 0);
             category.AddProduct(product);
 
@@ -155,7 +155,7 @@ namespace ads.feira.domain.tests.Categories
         public void RemoveProduct_NonExistingProduct_ShouldNotAffectCollection()
         {
             // Arrange
-            var category = new Category(1, "Test Category", TypeCategoryEnum.Calcados, "Description", "assets.jpg");
+            var category = new Category(1, "Test Category", "Description", "assets.jpg");
             var product1 = new Product(1, 1, category.Id, "Test Product 1", "Description", "asset1.jpg", 10.99m, 0);
             var product2 = new Product(2, 1, category.Id, "Test Product 2", "Description", "asset2.jpg", 15.99m, 0);
             category.AddProduct(product1);
@@ -172,7 +172,7 @@ namespace ads.feira.domain.tests.Categories
         public void RemoveProduct_NullProduct_ShouldThrowDomainExceptionValidation()
         {
             // Arrange
-            var category = new Category(1, "Test Category", TypeCategoryEnum.Brinquedos, "Description", "assets.jpg");
+            var category = new Category(1, "Test Category", "Description", "assets.jpg");
 
             // Act & Assert
             var exception = Assert.Throws<DomainExceptionValidation>(() => category.RemoveProduct(null));
@@ -190,7 +190,7 @@ namespace ads.feira.domain.tests.Categories
             
 
             // Act
-            var category = new Category(1, "Category Name", TypeCategoryEnum.ComidaSalgada, "Categoria Teste", "imagem");
+            var category = new Category(1, "Category Name", "Categoria Teste", "imagem");
 
             // Assert
             category.Stores.Should().BeEmpty("porque uma nova categoria deve ter uma coleção de lojas vazia.");
@@ -201,9 +201,9 @@ namespace ads.feira.domain.tests.Categories
         public void AddStore_ToCategory_StoreAddedSuccessfully()
         {
             // Arrange
-            var applicationUser = CognitoUser.Create(Guid.Parse("4B660458-AC10-48BA-8226-A8A84F302BC7"), "testuser@example.com", "testuser", "xxxx", "sadfsdf", true, true, "admin");
-            var category = new Category(1, "Category Name", TypeCategoryEnum.ComidaSalgada, "Categoria Teste", "imagem");
-            var store = Store.Create(1, Guid.Parse("4B660458-AC10-48BA-8226-A8A84F302BC7"), "name", 2, "description", "imagens", "1", false, "locations");
+            var applicationUser = new Account("testuser", "xxxx", true, true, true, UserType.StoreOwner);
+            var category = new Category(1, "Category Name","Categoria Teste", "imagem");
+            var store = Store.Create(1, "4B660458-AC10-48BA-8226-A8A84F302BC7", "name", 2, "description", "imagens", "1", false, "locations");
 
             // Act
             category.Stores.Add(store);
@@ -216,8 +216,8 @@ namespace ads.feira.domain.tests.Categories
         public void AddProduct_ToCategory_ProductAddedSuccessfully()
         {
             // Arrange
-            var applicationUser = CognitoUser.Create(Guid.Parse("4B660458-AC10-48BA-8226-A8A84F302BC7"), "testuser@example.com", "testuser", "xxxx", "sadfsdf", true, true, "admin");
-            var category = new Category(1, "Category Name", TypeCategoryEnum.ComidaSalgada, "Categoria Teste", "imagem");
+            var applicationUser = new Account("testuser", "xxxx", true, true, true, UserType.StoreOwner);
+            var category = new Category(1, "Category Name","Categoria Teste", "imagem");
             var product = Product.Create(1, 1, 1, "Product 1", "Description", "assets", 100.0m, 0);
 
             // Act

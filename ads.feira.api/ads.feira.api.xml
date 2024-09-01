@@ -9,16 +9,25 @@
 				Faz o login no aplicativo
 			</summary>
 		</member>
-		<member name="M:ads.feira.api.Controllers.AccountController.Register(ads.feira.api.Models.Accounts.RegisterViewModel)">
+		<member name="M:ads.feira.api.Controllers.AccountController.RegisterCustomer(ads.feira.api.Models.Accounts.RegisterViewModel)">
 			<summary>
-				Insere um novo cliente.
-			</summary>			
-		</member>
-		<member name="M:ads.feira.api.Controllers.AccountController.UpdateUser(ads.feira.api.Models.Accounts.UpdateCognitorUserViewModel)">
-			<summary>
-				Atualiza os dados de um Cliente
+				Faz o cadastro de Clientes
 			</summary>
-			<param name="novoCliente"></param>
+		</member>
+		<member name="M:ads.feira.api.Controllers.AccountController.RegisterStoreOwner(ads.feira.api.Models.Accounts.RegisterViewModel)">
+			<summary>
+				Faz o cadastro de Logistas
+			</summary>
+		</member>
+		<member name="M:ads.feira.api.Controllers.AccountController.ConfirmEmail()">
+			<summary>
+				Enfia um Email de Confirmação
+			</summary>
+		</member>
+		<member name="M:ads.feira.api.Controllers.AccountController.ForgotPassword(ads.feira.api.Models.Accounts.ForgotPasswordViewModel)">
+			<summary>
+				Enfia um Email de Confirmação
+			</summary>
 		</member>
 	</members>
 </doc>

@@ -1,31 +1,38 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace ads.feira.api.Models.Accounts
 {
-    public class RegisterViewModel
+    public record RegisterViewModel
     {
-        [DisplayName("Email")]
+        [Required(ErrorMessage = "Email é obrigatório")]
+        [EmailAddress(ErrorMessage = "E-mail Inválido.")]
         public string Email { get; set; }
-        
-        [DisplayName("Password")]
+
+        [Required(ErrorMessage = "Password é obrigatório")]
+        [StringLength(20, ErrorMessage = "O {0} deve ter um minimo de {2} e no máximo " +
+            "{1} caracteres.", MinimumLength = 10)]
+        [DataType(DataType.Password)]
         public string Password { get; set; }
 
-        [DisplayName("Nome Completo")]
-        public string Name { get; set; }
+        [DataType(DataType.Password)]
+        [Display(Name = "Confirme a senha")]
+        [Compare("Password", ErrorMessage = "As senhas não conferem")]
+        public string? ConfirmPassword { get; set; }
 
-        [DisplayName("Descrição")]
-        public string? Description { get;  set; }
+
+        [Required(ErrorMessage = "Preencha seu nome")]
+        [MinLength(3)]
+        [DisplayName("Nome Completo")]
+        public string? Name { get; set; }
 
         [DisplayName("Avatar")]
-        public IFormFile? Assets { get;  set; }
+        public IFormFile? Assets { get; set; }
 
-        [DisplayName("Termo de Serviço")]
-        public bool TosAccept { get; set; } = true;
+        [DisplayName("Termos de Serviço")]
+        public bool TosAccept { get; set; }
 
         [DisplayName("Termo de Privacidade")]
-        public bool PrivacyAccept { get; set; } = true;
-
-        [DisplayName("Role")]
-        public string? Roles { get; set; }
+        public bool PrivacyAccept { get; set; }
     }
 }

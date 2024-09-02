@@ -42,16 +42,9 @@ namespace ads.feira.api.Controllers
             return Ok(cupon);
         }
 
-        [HttpGet("Find")]
-        public async Task<ActionResult<IEnumerable<CuponViewModel>>> FindCategory([FromQuery] string name)
-        {
-            Expression<Func<CuponDTO, bool>> predicate = c => c.Name.Contains(name);
-            var categories = await _cuponService.Find(predicate);
-            return Ok(_mapper.Map<IEnumerable<CuponViewModel>>(categories));
-        }
-
+       
         [HttpPost]
-        public async Task<ActionResult> Create([FromForm] CreateCuponDTO cuponDto)
+        public async Task<ActionResult> Create([FromBody] CreateCuponDTO cuponDto)
         {
             if (cuponDto == null)
                 return BadRequest("Invalid Data");

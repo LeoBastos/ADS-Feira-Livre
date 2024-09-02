@@ -1,5 +1,4 @@
 ﻿using ads.feira.application.DTO.Categories;
-using System.Linq.Expressions;
 
 namespace ads.feira.application.Interfaces.Categories
 {
@@ -7,9 +6,8 @@ namespace ads.feira.application.Interfaces.Categories
     {
         Task<IEnumerable<CategoryDTO>> GetAll();
         Task<CategoryDTO> GetById(int id);
-        Task<IEnumerable<CategoryDTO>> Find(Expression<Func<CategoryDTO, bool>> predicate);
 
-        Task Create(CreateCategoryDTO categoryDTO, IEnumerable<int> productIds);
+        Task Create(CreateCategoryDTO categoryDTO);
         Task Update(UpdateCategoryDTO categoryDTO);
         Task Remove(int id);
     }

@@ -1,13 +1,17 @@
 ﻿using ads.feira.application.CQRS.Categories.Commands;
 using ads.feira.application.CQRS.Cupons.Commands;
+using ads.feira.application.CQRS.Products.Commands;
+using ads.feira.application.CQRS.Stores.Commands;
 using ads.feira.application.DTO.Accounts;
 using ads.feira.application.DTO.Categories;
 using ads.feira.application.DTO.Cupons;
 using ads.feira.application.DTO.Products;
+using ads.feira.application.DTO.Stores;
 using ads.feira.domain.Entity.Accounts;
 using ads.feira.domain.Entity.Categories;
 using ads.feira.domain.Entity.Cupons;
 using ads.feira.domain.Entity.Products;
+using ads.feira.domain.Entity.Stores;
 using AutoMapper;
 
 namespace ads.feira.application.Mappings
@@ -20,12 +24,8 @@ namespace ads.feira.application.Mappings
             CreateMap<Category, CategoryDTO>().ReverseMap();
             CreateMap<Category, CreateCategoryDTO>().ReverseMap();
             CreateMap<Category, UpdateCategoryDTO>().ReverseMap();
-            CreateMap<Category, CategoryCreateCommand>().ReverseMap();
-            CreateMap<Category, CategoryUpdateCommand>().ReverseMap();
-
-            CreateMap<CreateCategoryDTO, CategoryCreateCommand>()
-            .ForMember(dest => dest.CreatedById, opt => opt.MapFrom(src => src.CreatedById.GetHashCode() & int.MaxValue))
-            .ReverseMap();
+            CreateMap<CreateCategoryDTO, CategoryCreateCommand>().ReverseMap();
+            CreateMap<UpdateCategoryDTO, CategoryUpdateCommand>().ReverseMap();         
 
             #endregion
 
@@ -51,8 +51,18 @@ namespace ads.feira.application.Mappings
             CreateMap<Product, ProductDTO>().ReverseMap();
             CreateMap<Product, CreateProductDTO>().ReverseMap();
             CreateMap<Product, UpdateProductDTO>().ReverseMap();
-            CreateMap<Product, CategoryCreateCommand>().ReverseMap();
-            CreateMap<Product, CategoryUpdateCommand>().ReverseMap();
+            CreateMap<CreateProductDTO, ProductCreateCommand>().ReverseMap();
+            CreateMap<UpdateProductDTO, ProductUpdateCommand>().ReverseMap();
+            #endregion
+
+            #region Stores
+
+            CreateMap<Store, StoreDTO>().ReverseMap();
+            CreateMap<Store, CreateStoreDTO>().ReverseMap();
+            CreateMap<Store, UpdateStoreDTO>().ReverseMap();
+            CreateMap<CreateStoreDTO, StoreCreateCommand>().ReverseMap();
+            CreateMap<UpdateStoreDTO, StoreCreateCommand>().ReverseMap();
+
             #endregion
         }
     }

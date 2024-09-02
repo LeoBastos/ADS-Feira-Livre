@@ -6,8 +6,7 @@ namespace ads.feira.application.Interfaces.Cupons
     public interface ICuponService
     {
         Task<IEnumerable<CuponDTO>> GetAll();
-        Task<CuponDTO> GetById(int id);
-        Task<IEnumerable<CuponDTO>> Find(Expression<Func<CuponDTO, bool>> predicate);
+        Task<CuponDTO> GetById(int id);      
 
         Task AddProductToCupon(int cuponId, int productId);
         Task RemoveProductFromCupon(int cuponId, int productId);

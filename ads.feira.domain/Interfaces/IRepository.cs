@@ -6,8 +6,7 @@ namespace ads.feira.domain.Interfaces
     {
         #region Querys
         Task<IEnumerable<TEntity>> GetAllAsync();
-        Task<TEntity> GetByIdAsync(int id);
-        Task<IEnumerable<TEntity>> Find(Expression<Func<TEntity, bool>> predicate);
+        Task<TEntity> GetByIdAsync(int id);       
         #endregion
 
         #region Commands

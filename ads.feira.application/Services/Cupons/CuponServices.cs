@@ -34,13 +34,6 @@ namespace ads.feira.application.Services.Cupons
             return _mapper.Map<CuponDTO>(result);
         }
 
-        public async Task<IEnumerable<CuponDTO>> Find(Expression<Func<CuponDTO, bool>> predicate)
-        {
-            var findCuponQuery = new FindCuponQuery(predicate);
-            var result = await _mediator.Send(findCuponQuery);
-            return _mapper.Map<IEnumerable<CuponDTO>>(result);
-        }
-
         public async Task<IEnumerable<CuponDTO>> GetAll()
         {
             var cuponQuery = new GetAllCuponQuery();

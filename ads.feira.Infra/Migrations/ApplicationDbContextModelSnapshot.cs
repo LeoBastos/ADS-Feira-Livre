@@ -327,8 +327,9 @@ namespace ads.feira.Infra.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("ParentCategoryId")
-                        .HasColumnType("int");
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("_Deleted")
                         .HasColumnType("bit");
@@ -341,9 +342,7 @@ namespace ads.feira.Infra.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ParentCategoryId");
-
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("ads.feira.domain.Entity.Cupons.Cupon", b =>
@@ -392,7 +391,7 @@ namespace ads.feira.Infra.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Cupons");
+                    b.ToTable("Cupons", (string)null);
                 });
 
             modelBuilder.Entity("ads.feira.domain.Entity.Products.Product", b =>
@@ -448,7 +447,7 @@ namespace ads.feira.Infra.Migrations
 
                     b.HasIndex("StoreId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("ads.feira.domain.Entity.Reviews.Review", b =>
@@ -492,7 +491,7 @@ namespace ads.feira.Infra.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", (string)null);
                 });
 
             modelBuilder.Entity("ads.feira.domain.Entity.Stores.Store", b =>
@@ -553,7 +552,7 @@ namespace ads.feira.Infra.Migrations
 
                     b.HasIndex("StoreOwnerId");
 
-                    b.ToTable("Stores");
+                    b.ToTable("Stores", (string)null);
                 });
 
             modelBuilder.Entity("AccountCupon", b =>
@@ -667,16 +666,6 @@ namespace ads.feira.Infra.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ads.feira.domain.Entity.Categories.Category", b =>
-                {
-                    b.HasOne("ads.feira.domain.Entity.Categories.Category", "ParentCategory")
-                        .WithMany("Subcategories")
-                        .HasForeignKey("ParentCategoryId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("ParentCategory");
-                });
-
             modelBuilder.Entity("ads.feira.domain.Entity.Products.Product", b =>
                 {
                     b.HasOne("ads.feira.domain.Entity.Categories.Category", "Category")
@@ -746,8 +735,6 @@ namespace ads.feira.Infra.Migrations
                     b.Navigation("Products");
 
                     b.Navigation("Stores");
-
-                    b.Navigation("Subcategories");
                 });
 
             modelBuilder.Entity("ads.feira.domain.Entity.Stores.Store", b =>

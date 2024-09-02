@@ -82,6 +82,7 @@ namespace ads.feira.domain.Entity.Products
         {
             DomainExceptionValidation.When(id < 0, "Id inválido.");
             DomainExceptionValidation.When(storeId < 0, "Id inválido.");
+
             DomainExceptionValidation.When(categoryId < 0, "Id inválido.");
 
             DomainExceptionValidation.When(string.IsNullOrEmpty(name), "Nome não pode ser nulo.");

@@ -27,7 +27,7 @@ namespace ads.feira.domain.Entity.Stores
 
         public Category Category { get; set; }
         public Account StoreOwner { get; set; }
-
+       
         public ICollection<Product> Products { get; private set; } = new List<Product>();
         public ICollection<Review> Reviews { get; private set; } = new List<Review>();
         public ICollection<Cupon> AvailableCupons { get; private set; } = new List<Cupon>();
@@ -46,6 +46,18 @@ namespace ads.feira.domain.Entity.Stores
         public void Remove()
         {
             IsActive = false;
+        }
+
+        public void AddProduct(Product product)
+        {
+            DomainExceptionValidation.When(product == null, "Produto não pode ser nulo.");
+            Products.Add(product);
+        }
+
+        public void RemoveProduct(Product product)
+        {
+            DomainExceptionValidation.When(product == null, "Produto não pode ser nulo.");
+            Products.Remove(product);
         }
 
         private void ValidateDomain(int id, string storeOwnerId, string name, int categoryId, string description, string assets, string storeNumber, bool hasDebt, string locations)
@@ -67,6 +79,8 @@ namespace ads.feira.domain.Entity.Stores
 
             DomainExceptionValidation.When(string.IsNullOrEmpty(locations), "Local não pode ser nulo.");
             DomainExceptionValidation.When(locations.Length < 1, "Minimo de 3 caracteres.");
+
+            DomainExceptionValidation.When(hasDebt == true, "Loja possui Débito.");
 
             Id = id;
             StoreOwnerId = storeOwnerId;

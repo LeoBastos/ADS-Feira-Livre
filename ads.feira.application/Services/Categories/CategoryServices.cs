@@ -14,7 +14,7 @@ namespace ads.feira.application.Services.Categories
         private readonly ICategoryRepository _context;
         private readonly IMapper _mapper;
         private readonly IMediator _mediator;
-
+               
         public CategoryServices(IMapper mapper, ICategoryRepository context, IMediator mediator)
         {
             _context = context;
@@ -22,6 +22,13 @@ namespace ads.feira.application.Services.Categories
             _mapper = mapper;
         }
 
+        #region Queries
+
+        /// <summary>
+        /// Busca Categoria por Id
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns>Retorna uma LINQ Expression com um categoria</returns>
         public async Task<CategoryDTO> GetById(int id)
         {
             var categoryQuery = new GetCategoryByIdQuery(id);
@@ -33,13 +40,10 @@ namespace ads.feira.application.Services.Categories
             return _mapper.Map<CategoryDTO>(result);
         }
 
-        public async Task<IEnumerable<CategoryDTO>> Find(Expression<Func<CategoryDTO, bool>> predicate)
-        {
-            var findCategoryQuery = new FindCategoryQuery(predicate);
-            var result = await _mediator.Send(findCategoryQuery);
-            return _mapper.Map<IEnumerable<CategoryDTO>>(result);
-        }
-
+        /// <summary>
+        /// Retorna todas categorias
+        /// </summary>      
+        /// <returns>Retorna uma LINQ Expression com todas categorias</returns>
         public async Task<IEnumerable<CategoryDTO>> GetAll()
         {
             var categoryQuery = new GetAllCategoryQuery();
@@ -47,7 +51,16 @@ namespace ads.feira.application.Services.Categories
             return _mapper.Map<IEnumerable<CategoryDTO>>(result);
         }
 
-        public async Task Create(CreateCategoryDTO categoryDTO, IEnumerable<int> productIds = null)
+        #endregion
+
+        #region Commands
+
+        /// <summary>
+        /// Add a Entity
+        /// </summary>
+        /// <param name="entity">Category</param>
+        /// <returns></returns>
+        public async Task Create(CreateCategoryDTO categoryDTO)
         {
             var categoryCreateCommand = _mapper.Map<CategoryCreateCommand>(categoryDTO);
 
@@ -58,20 +71,24 @@ namespace ads.feira.application.Services.Categories
 
             var createdCategory = await _mediator.Send(categoryCreateCommand);
 
-            if (productIds != null && productIds.Any())
-            {
-                foreach (var productId in productIds)
-                {
-                    var addProductCommand = new AddProductToCategoryCommand
-                    {
-                        CategoryId = createdCategory.Id,
-                        ProductId = productId
-                    };
-                    await _mediator.Send(addProductCommand);
-                }
-            }
+            //if (productIds != null && productIds.Any())
+            //{
+            //    foreach (var productId in productIds)
+            //    {
+            //        var addProductCommand = new AddProductToCategoryCommand
+            //        {
+            //            CategoryId = createdCategory.Id,
+            //            ProductId = productId
+            //        };
+            //        await _mediator.Send(addProductCommand);
+            //    }
+            //}
         }
 
+        /// <summary>
+        /// Update a Entity
+        /// </summary>
+        /// <param name="entity">Category</param>
         public async Task Update(UpdateCategoryDTO categoryDTO)
         {
             var categoryUpdateCommand = _mapper.Map<CategoryUpdateCommand>(categoryDTO);
@@ -84,12 +101,21 @@ namespace ads.feira.application.Services.Categories
             await _mediator.Send(categoryUpdateCommand);
         }
 
+        /// <summary>
+        /// Remove a Entity
+        /// </summary>
+        /// <param name="entity">Category</param>
         public async Task Remove(int id)
         {
             var categoryRemoveCommand = new CategoryRemoveCommand(id);
             await _mediator.Send(categoryRemoveCommand);
         }
 
+        /// <summary>
+        /// Método para Adicionar um produto a Categoria
+        /// </summary>
+        /// <param name="categoryId, productId"></param>
+        /// <returns>Retorna uma LINQ Expression com um produto inserido na categoria</returns>
         public async Task AddProductToCategory(int categoryId, int productId)
         {
             var addProductCommand = new AddProductToCategoryCommand
@@ -100,6 +126,11 @@ namespace ads.feira.application.Services.Categories
             await _mediator.Send(addProductCommand);
         }
 
+        /// <summary>
+        /// Método para Remover um produto da Categoria
+        /// </summary>
+        /// <param name="categoryId, productId"></param>
+        /// <returns>Retorna uma LINQ Expression com um produto removido na categoria</returns>
         public async Task RemoveProductFromCategory(int categoryId, int productId)
         {
             var removeProductCommand = new RemoveProductFromCategoryCommand
@@ -109,5 +140,7 @@ namespace ads.feira.application.Services.Categories
             };
             await _mediator.Send(removeProductCommand);
         }
+        
+        #endregion
     }
 }

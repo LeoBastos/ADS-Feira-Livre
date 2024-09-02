@@ -105,7 +105,7 @@ namespace ads.feira.domain.tests.Cupons
         {
             // Arrange
             var cupon = new Cupon(1, "name", "code", "Description", DateTime.UtcNow.AddDays(1), 10, DiscountTypeEnum.Fixed);
-            var product = new Product(1, 1, 1, "nome", "Description", "asset.jpg", 10.99m, 0);
+            var product = new Product(1, 2, 1, "nome", "Description", "asset.jpg", 10.99m, 0);
             var store = new Store(1, "4B660458-AC10-48BA-8226-A8A84F302BC7", "name", 1, "description", "imagens", "2", true, "locations");
 
             // Act
@@ -135,7 +135,7 @@ namespace ads.feira.domain.tests.Cupons
         {
             // Arrange
             var cupon = new Cupon(1, "name", "code", "Description", DateTime.UtcNow.AddDays(1), 10, DiscountTypeEnum.Fixed);
-            var product = new Product(1, 1, 1, "Test Product", "Description", "asset.jpg", 10.99m, 0);
+            var product = new Product(1, 2, 1, "Test Product", "Description", "asset.jpg", 10.99m, 0);
             var store = new Store(1, "4B660458-AC10-48BA-8226-A8A84F302BC7", "name", 1, "description", "imagens", "2", true, "locations");
 
             cupon.AddProduct(product);
@@ -185,7 +185,7 @@ namespace ads.feira.domain.tests.Cupons
             // Arrange
 
             var cupon = new Cupon(1, "name", "code", "description", DateTime.UtcNow.AddDays(1), 20, DiscountTypeEnum.Percentage);
-            var product = Product.Create(1, 1, 1, "Product 1", "Description", "assets", 100.0m, 0);
+            var product = Product.Create(1, 2, 1, "Product 1", "Description", "assets", 100.0m, 0);
 
             // Act
             cupon.Products.Add(product);

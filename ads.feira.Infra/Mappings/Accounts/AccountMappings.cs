@@ -15,7 +15,7 @@ namespace ads.feira.Infra.Mappings.Accounts
                 .HasMaxLength(250);
 
             builder.Property(u => u.Assets)
-                .HasMaxLength(250);
+                .HasMaxLength(250);          
 
             builder.HasMany(u => u.Stores)
                 .WithOne(s => s.StoreOwner)

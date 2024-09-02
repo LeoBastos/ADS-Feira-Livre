@@ -15,7 +15,7 @@ namespace ads.feira.application.DTO.Accounts
         public string Email { get; set; }
 
         [DisplayName("Avatar")]
-        public string? Assets { get; set; }
+        public string? Assets { get; set; }       
 
         [DisplayName("Role")]
         public string UserType { get; set; }

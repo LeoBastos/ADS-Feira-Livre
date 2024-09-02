@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Interfaces\Stores\" />
     <Folder Include="Interfaces\Reviews\" />
   </ItemGroup>
 

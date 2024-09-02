@@ -37,9 +37,76 @@ namespace ads.feira.api.Controllers
         }
 
         /// <summary>
+        /// - Busca um usuário por Id.
+        /// </summary>
+        /// <param name="Id"></param>
+        [Authorize]
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(AccountResponseDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<AccountResponseDTO>> GetUserById(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user == null)
+            {
+                return NotFound($"User with ID '{id}' not found.");
+            }
+
+            var rule = user.Email;
+
+            // Only allow users to view their own profile, unless they're an admin
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) != rule && !User.IsInRole("Admin"))
+            {
+                return Forbid();
+            }
+
+            return Ok(new AccountResponseDTO
+            {
+                Email = user.Email,
+                Name = user.Name,
+                Assets = user.Assets,
+                UserType = EnumExtensions.GetDisplayName(user.UserType),
+            });
+        }
+
+        /// <summary>
+        /// - Efetua Login na Plataforma
+        /// </summary>
+        [HttpPost("login")]
+        [ProducesResponseType(typeof(LoginViewModel), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<UserToken>> Login([FromBody] LoginViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
+            {
+                return Unauthorized("Invalid email or password");
+            }
+
+            if (!user.EmailConfirmed)
+            {
+                return Unauthorized("Email not confirmed. Please check your email for the confirmation link.");
+            }
+
+            var token = await GenerateJwtToken(user);
+            return Ok(new UserToken { Token = token, Expiration = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationInMinutes) });
+        }
+
+        /// <summary>
         ///  - Registra um Cliente
         /// </summary>
         [HttpPost("register/customer")]
+        [ProducesResponseType(typeof(RegisterViewModel), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RegisterCustomer([FromForm] RegisterViewModel model)
         {
             return await RegisterUser(model, UserType.Customer);
@@ -49,6 +116,9 @@ namespace ads.feira.api.Controllers
         ///  - Registra um Lojista
         /// </summary>
         [HttpPost("register/storeowner")]
+        [ProducesResponseType(typeof(RegisterViewModel), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RegisterStoreOwner([FromForm] RegisterViewModel model)
         {
             return await RegisterUser(model, UserType.StoreOwner);
@@ -100,6 +170,9 @@ namespace ads.feira.api.Controllers
         /// - Confirmação por Email
         /// </summary>
         [HttpGet("confirm-email")]
+        [ProducesResponseType(typeof(ForgotPasswordViewModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ConfirmEmail(string userId, string token)
         {
             if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(token))
@@ -121,37 +194,14 @@ namespace ads.feira.api.Controllers
 
             return Ok("Thank you for confirming your email.");
         }
-
+        
         /// <summary>
-        ///  Efetua Login na Plataforma
-        /// </summary>
-        [HttpPost("login")]
-        public async Task<ActionResult<UserToken>> Login([FromBody] LoginViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
-            {
-                return Unauthorized("Invalid email or password");
-            }
-
-            if (!user.EmailConfirmed)
-            {
-                return Unauthorized("Email not confirmed. Please check your email for the confirmation link.");
-            }
-
-            var token = await GenerateJwtToken(user);
-            return Ok(new UserToken { Token = token, Expiration = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationInMinutes) });
-        }
-
-        /// <summary>
-        ///  Esqueceu a Senha
+        /// - Esqueceu a Senha
         /// </summary>
         [HttpPost("forgot-password")]
+        [ProducesResponseType(typeof(ForgotPasswordViewModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordViewModel model)
         {
             if (!ModelState.IsValid)
@@ -179,6 +229,9 @@ namespace ads.feira.api.Controllers
         ///  - Redefinir Senha
         /// </summary>
         [HttpPost("reset-password")]
+        [ProducesResponseType(typeof(ResetPasswordViewModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordViewModel model)
         {
             if (!ModelState.IsValid)
@@ -210,8 +263,12 @@ namespace ads.feira.api.Controllers
         /// <summary>
         ///  - Atualizar Usuário
         /// </summary>
+        /// <param name="Id"></param>
         [Authorize]
         [HttpPut("{id}")]
+        [ProducesResponseType(typeof(AccountUpdateDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateUser(string id, [FromForm] AccountUpdateDTO model)
         {
             if (id == null)
@@ -226,7 +283,7 @@ namespace ads.feira.api.Controllers
             }
 
             // Only allow users to update their own profile, unless they're an admin
-            if (User.FindFirstValue(ClaimTypes.NameIdentifier) != id && !User.IsInRole("Administrator"))
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) != id && !User.IsInRole("Admin"))
             {
                 return Forbid();
             }
@@ -244,14 +301,19 @@ namespace ads.feira.api.Controllers
                 return BadRequest(result.Errors);
             }
 
-            return NoContent();
+            return Ok("Usuário atualizado com sucesso");
         }
 
         /// <summary>
         ///  - Excluir um Usuário
         /// </summary>
-        [Authorize(Roles = "Administrator")]
+        /// <param name="Id"></param>
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteUser(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -269,49 +331,13 @@ namespace ads.feira.api.Controllers
             return NoContent();
         }
 
-        /// <summary>
-        ///  - Buscar Usuário por Id
-        /// </summary>
-        [Authorize]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<AccountResponseDTO>> GetUserById(string id)
-        {
-            var user = await _userManager.FindByIdAsync(id);
-
-            if (user == null)
-            {
-                return NotFound($"User with ID '{id}' not found.");
-            }
-
-            foreach (var claim in User.Claims)
-            {
-                Console.WriteLine($"Type: {claim.Type}, Value: {claim.Value}");
-            }
-
-            var rule = user.Email;
-
-            // Only allow users to view their own profile, unless they're an admin
-            if (User.FindFirstValue(ClaimTypes.NameIdentifier) != rule && !User.IsInRole("Admin"))
-            {
-                return Forbid();
-            }
-
-            return Ok(new AccountResponseDTO
-            {               
-                Email = user.Email,
-                Name = user.Name,
-                Assets = user.Assets,     
-                UserType = EnumExtensions.GetDisplayName(user.UserType),
-            });
-        }
-
         private async Task<string> GenerateJwtToken(Account user)
         {
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id)
+                new Claim(ClaimTypes.NameIdentifier, user.Id)               
             };
 
             var roles = await _userManager.GetRolesAsync(user);

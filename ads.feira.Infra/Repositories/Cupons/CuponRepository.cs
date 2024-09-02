@@ -24,21 +24,10 @@ namespace ads.feira.Infra.Repositories.Cupons
         public async Task<Cupon> GetByIdAsync(int id)
         {
             return await _context.Cupons
-                   .AsNoTracking()
-                   .FirstOrDefaultAsync(t => t.Id == id);
-        }
-
-        /// <summary>
-        /// Filtra Cupon por Predicado
-        /// </summary>
-        /// <param name="predicate"></param>
-        /// <returns>Retorna uma LINQ Expression com predicado por cupon</returns>
-        public async Task<IEnumerable<Cupon>> Find(Expression<Func<Cupon, bool>> predicate)
-        {
-            return await _context.Cupons
-               .Where(predicate)
-               .ToListAsync();
-        }
+                    .Where(p => p.IsActive == true)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(t => t.Id == id);
+        }      
 
         /// <summary>
         /// Retorna todos os cupons
@@ -47,9 +36,10 @@ namespace ads.feira.Infra.Repositories.Cupons
         public async Task<IEnumerable<Cupon>> GetAllAsync()
         {
             return await _context.Cupons
-               .AsNoTracking()
-               .OrderBy(t => t.Name)
-               .ToListAsync();
+                .AsNoTracking()
+                .Where(p => p.IsActive == true)
+                .OrderBy(t => t.Name)
+                .ToListAsync();
         }
         #endregion
 

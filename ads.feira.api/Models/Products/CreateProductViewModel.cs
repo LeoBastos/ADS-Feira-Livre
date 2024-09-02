@@ -10,5 +10,5 @@
         public IFormFile Assets { get; set; }
         public decimal Price { get; set; }
         public decimal? DiscountedPrice { get; set; }
-    }
+    }  
 }

@@ -21,14 +21,11 @@ namespace ads.feira.Infra.Mappings.Categories
             builder.Property(c => c.Assets)
                 .HasMaxLength(250);
 
-            builder.Property(c => c.IsActive)
-                .IsRequired();
-            
-            builder.HasOne(c => c.ParentCategory)
-                .WithMany(c => c.Subcategories)
-                .HasForeignKey(c => c.ParentCategoryId)
-                .OnDelete(DeleteBehavior.Restrict);
+            builder.Property(u => u.Type)
+                .HasConversion<string>();
 
+            builder.Property(c => c.IsActive)
+                .IsRequired();           
             
             builder.HasMany(c => c.Products)
                 .WithOne(p => p.Category)

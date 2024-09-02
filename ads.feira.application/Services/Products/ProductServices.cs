@@ -33,12 +33,6 @@ namespace ads.feira.application.Services.Products
             return _mapper.Map<ProductDTO>(result);
         }
 
-        public async Task<IEnumerable<ProductDTO>> Find(Expression<Func<ProductDTO, bool>> predicate)
-        {
-            var findProductQuery = new FindProductQuery(predicate);
-            var result = await _mediator.Send(findProductQuery);
-            return _mapper.Map<IEnumerable<ProductDTO>>(result);
-        }
 
         public async Task<IEnumerable<ProductDTO>> GetAll()
         {

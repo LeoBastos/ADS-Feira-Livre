@@ -24,21 +24,9 @@ namespace ads.feira.Infra.Repositories.Reviews
         public async Task<Review> GetByIdAsync(int id)
         {
             return await _context.Reviews
-                  .AsNoTracking()
-                  .FirstOrDefaultAsync(t => t.Id == id);
-        }
-
-        /// <summary>
-        /// Filtra Review por Predicado
-        /// </summary>
-        /// <param name="predicate"></param>
-        /// <returns>Retorna uma LINQ Expression com predicado por review</returns>
-        public async Task<IEnumerable<Review>> Find(Expression<Func<Review, bool>> predicate)
-        {
-            return await _context.Reviews
-                .AsNoTracking()
-                .Where(predicate)
-                .ToListAsync();
+                    .AsNoTracking()
+                    .Where(p => p.IsActive == true)
+                    .FirstOrDefaultAsync(t => t.Id == id);
         }
 
         /// <summary>
@@ -48,9 +36,10 @@ namespace ads.feira.Infra.Repositories.Reviews
         public async Task<IEnumerable<Review>> GetAllAsync()
         {
             return await _context.Reviews
-                  .AsNoTracking()
-                  .OrderBy(t => t.Rate)
-                  .ToListAsync();
+                    .AsNoTracking()
+                    .OrderBy(t => t.Rate)
+                    .Where(p => p.IsActive == true)
+                    .ToListAsync();
         }
 
         #endregion

@@ -15,7 +15,7 @@ namespace ads.feira.domain.Entity.Accounts
             Assets = assets;
             TosAccept = tosAccept;
             PrivacyAccept = privacyAccept;
-            IsActive = isActive;
+            IsActive = isActive;           
             UserType = userType;
         }
 
@@ -23,7 +23,7 @@ namespace ads.feira.domain.Entity.Accounts
         public string? Assets { get; set; }
         public bool TosAccept { get; set; } = true;
         public bool PrivacyAccept { get; set; } = true;
-        public bool IsActive { get; set; } = true;
+        public bool IsActive { get; set; } = true;       
         public UserType UserType { get; set; }
 
         public ICollection<Store> Stores { get; private set; } = new List<Store>();

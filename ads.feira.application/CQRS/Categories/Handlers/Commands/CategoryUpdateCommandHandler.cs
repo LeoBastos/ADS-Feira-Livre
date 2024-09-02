@@ -18,7 +18,7 @@ namespace ads.feira.application.CQRS.Categories.Handlers.Commands
         {
             _categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-            httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
         public async Task<Category> Handle(CategoryUpdateCommand request, CancellationToken cancellationToken)
@@ -39,7 +39,7 @@ namespace ads.feira.application.CQRS.Categories.Handlers.Commands
                 }
 
 
-                category.Update(request.Id, request.Name, request.Description, request.Assets);
+                category.Update(request.Id, request.Name, request.Description, request.Assets, request.Type);
 
                 await _categoryRepository.UpdateAsync(category);
                 await _unitOfWork.Commit();

@@ -64,7 +64,7 @@ namespace ads.feira.domain.tests.Identities
         public void AddStore_ShouldAddStoreToCollection()
         {
             // Arrange
-            var applicationUser = new Account("testuser", "xxxx", true, true, true, UserType.StoreOwner);
+            var applicationUser = new Account("testuser", "xxxx", true, true, true,  UserType.StoreOwner);
             var store = Store.Create(1, "4B660458-AC10-48BA-8226-A8A84F302BC7", "name", 2, "description", "assets", "storeNumbere", false, "locations");
 
             // Act

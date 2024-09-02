@@ -1,11 +1,10 @@
-﻿using ads.feira.domain.Entity.Accounts;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel;
 
 namespace ads.feira.application.DTO.Accounts
 {
     public class AccountUpdateDTO
-    {       
+    {
 
         [DisplayName("Nome")]
         public string? Name { get; set; }
@@ -14,7 +13,6 @@ namespace ads.feira.application.DTO.Accounts
         public string Email { get; set; }
 
         [DisplayName("Avatar")]
-        public IFormFile? Assets { get; set; }     
-        
+        public IFormFile? Assets { get; set; }
     }
 }

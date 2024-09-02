@@ -4,22 +4,19 @@ namespace ads.feira.domain.Enums.Products
 {
     public enum TypeCategoryEnum
     {
-        [Display(Name = "Comida Salgada")]
+        [Display(Name = "Comidas Salgadas")]
         ComidaSalgada,
         
-        [Display(Name = "Comida Doce")]
+        [Display(Name = "Doces/Bolos")]
         ComidaDoce,
         
         [Display(Name = "Frutas")]
         Frutas,
         
-        [Display(Name = "Legumes")]
+        [Display(Name = "Legumes e Verduras")]
         Legumes,
 
-        [Display(Name = "Verduras")]
-        Verduras,
-
-        [Display(Name = "Embutidos - Ex: Queijo")]
+        [Display(Name = "Embutidos")]
         Embutidos,
 
         [Display(Name = "Roupas Masculinas")]

@@ -24,23 +24,12 @@ namespace ads.feira.Infra.Repositories.Products
         public async Task<Product> GetByIdAsync(int id)
         {
             return await _context.Products
-                   .AsNoTracking()
-                   .FirstOrDefaultAsync(t => t.Id == id);
+                    .AsNoTracking()
+                    .Where(p => p.IsActive == true)
+                    .FirstOrDefaultAsync(t => t.Id == id);
         }
 
-        /// <summary>
-        /// Filtra Produto por Predicado
-        /// </summary>
-        /// <param name="predicate"></param>
-        /// <returns>Retorna uma LINQ Expression com predicado por produto</returns>
-        public async Task<IEnumerable<Product>> Find(Expression<Func<Product, bool>> predicate)
-        {
-            return await _context.Products
-                .AsNoTracking()
-                .Where(predicate)
-                .ToListAsync();
-        }
-
+       
         /// <summary>
         /// Retorna todos os Produtos
         /// </summary>      
@@ -48,9 +37,10 @@ namespace ads.feira.Infra.Repositories.Products
         public async Task<IEnumerable<Product>> GetAllAsync()
         {
             return await _context.Products
-               .AsNoTracking()
-               .OrderBy(t => t.Name)
-               .ToListAsync();
+                .AsNoTracking()
+                .OrderBy(t => t.Name)
+                .Where(p => p.IsActive == true)
+                .ToListAsync();
         }
 
         #endregion

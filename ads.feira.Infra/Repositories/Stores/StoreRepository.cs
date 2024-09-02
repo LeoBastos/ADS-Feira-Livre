@@ -26,21 +26,10 @@ namespace ads.feira.Infra.Repositories.Stores
         {
             return await _context.Stores
                     .AsNoTracking()
+                    .Where(p => p.IsActive == true)
                     .FirstOrDefaultAsync(t => t.Id == id);
         }
 
-        /// <summary>
-        /// Filtra Loja por Predicado
-        /// </summary>
-        /// <param name="predicate"></param>
-        /// <returns>Retorna uma LINQ Expression com predicado por loja</returns>
-        public async Task<IEnumerable<Store>> Find(Expression<Func<Store, bool>> predicate)
-        {
-            return await _context.Stores
-                    .AsNoTracking()
-                    .Where(predicate)
-                    .ToListAsync();
-        }
 
         /// <summary>
         /// Retorna todos os Lojas
@@ -49,9 +38,10 @@ namespace ads.feira.Infra.Repositories.Stores
         public async Task<IEnumerable<Store>> GetAllAsync()
         {
             return await _context.Stores
-                      .AsNoTracking()
-                      .OrderBy(t => t.Name)
-                      .ToListAsync();
+                    .AsNoTracking()
+                    .OrderBy(t => t.Name)
+                    .Where(p => p.IsActive == true)
+                    .ToListAsync();
         }
 
         #endregion

@@ -7,8 +7,6 @@ namespace ads.feira.application.Interfaces.Products
     {
         Task<IEnumerable<ProductDTO>> GetAll();
         Task<ProductDTO> GetById(int id);
-        Task<IEnumerable<ProductDTO>> Find(Expression<Func<ProductDTO, bool>> predicate);
-
         Task AddCuponToProduct(int cuponId, int productId);
         Task RemoveCuponFromProduct(int cuponId, int productId);
 

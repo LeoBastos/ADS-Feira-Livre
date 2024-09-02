@@ -1,16 +1,10 @@
-﻿using ads.feira.domain.Entity.Categories;
-using ads.feira.domain.Entity.Cupons;
-using ads.feira.domain.Entity.Accounts;
-using ads.feira.domain.Entity.Products;
-using ads.feira.domain.Entity.Reviews;
-
-namespace ads.feira.application.DTO.Stores
+﻿namespace ads.feira.application.DTO.Stores
 {
     public class StoreDTO
     {
         public StoreDTO()
         {
-            
+
         }
 
         public int Id { get; set; }
@@ -22,12 +16,5 @@ namespace ads.feira.application.DTO.Stores
         public string StoreNumber { get; set; }
         public bool HasDebt { get; set; }
         public string Locations { get; set; }
-
-        public Category Category { get; set; }
-
-        public ICollection<Product> Products { get; set; } = new List<Product>();
-        public ICollection<Review> Reviews { get; set; } = new List<Review>();
-        public ICollection<Cupon> AvailableCupons { get; set; } = new List<Cupon>();
-        public ICollection<Account> Users { get; set; } = new List<Account>();
     }
 }

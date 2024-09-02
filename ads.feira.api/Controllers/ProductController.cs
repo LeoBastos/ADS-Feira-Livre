@@ -48,7 +48,7 @@ namespace ads.feira.api.Controllers
 
             await _productServices.Create(_mapper.Map<CreateProductDTO>(productViewModel));
 
-            return CreatedAtAction(nameof(GetById), new { id = productViewModel.Id }, productViewModel);
+            return Ok("Produto Adicionado.");
         }
 
         [HttpPut("{id}")]

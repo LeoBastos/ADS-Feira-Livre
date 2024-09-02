@@ -1,24 +1,26 @@
-﻿using ads.feira.api.Helpers;
-using ads.feira.domain.Enums.Products;
+﻿using ads.feira.domain.Enums.Products;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace ads.feira.api.Models.Categories
 {
     public class CreateCategoryViewModel
-    {       
+    {
         [Required]
         [StringLength(150, MinimumLength = 3)]
-        public string Name { get; set; }       
-
-        [Required]
-        public TypeCategoryEnum Type {  get; set; }
+        [DisplayName("Nome")]
+        public string Name { get; set; }
 
         [Required]
         [StringLength(250, MinimumLength = 3)]
+        [DisplayName("Descrição")]
         public string Description { get; set; }
 
-        public IFormFile Assets { get; set; }       
-
-        public List<int> ProductIds { get; set; } = new List<int>();
+        [DisplayName("Imagem")]
+        public IFormFile Assets { get; set; }
+        
+        [Required]
+        [DisplayName("Tipo")]
+        public TypeCategoryEnum Type { get; set; }
     }
 }

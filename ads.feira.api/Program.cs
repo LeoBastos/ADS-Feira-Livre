@@ -5,15 +5,18 @@ using ads.feira.api.Helpers.Settings;
 using ads.feira.application.CQRS.Categories.Handlers.Queries;
 using ads.feira.application.CQRS.Cupons.Handlers.Queries;
 using ads.feira.application.CQRS.Products.Handlers.Queries;
+using ads.feira.application.CQRS.Stores.Handlers.Queries;
 using ads.feira.application.Interfaces.Accounts;
 using ads.feira.application.Interfaces.Categories;
 using ads.feira.application.Interfaces.Cupons;
 using ads.feira.application.Interfaces.Products;
+using ads.feira.application.Interfaces.Stores;
 using ads.feira.application.Mappings;
 using ads.feira.application.Services.Accounts;
 using ads.feira.application.Services.Categories;
 using ads.feira.application.Services.Cupons;
 using ads.feira.application.Services.Products;
+using ads.feira.application.Services.Stores;
 using ads.feira.application.Validators.Categories;
 using ads.feira.domain.Entity.Accounts;
 using ads.feira.domain.Interfaces.Accounts;
@@ -75,8 +78,6 @@ namespace ads.feira.api
             builder.Configuration.AddUserSecrets<Program>();
 
             // Configuração do JWT
-            //var jwtSettings = builder.Configuration.GetSection("Jwt");
-            //var key = Encoding.ASCII.GetBytes(jwtSettings["SecretKey"]);
             builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
             builder.Services.AddAuthentication(x =>
             {
@@ -98,15 +99,7 @@ namespace ads.feira.api
                     ValidAudience = builder.Configuration["Jwt:Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(
                             Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"])),
-                    ClockSkew = TimeSpan.Zero
-                    //ValidateIssuerSigningKey = true,
-                    //IssuerSigningKey = new SymmetricSecurityKey(key),
-                    //ValidateIssuer = true,
-                    //ValidIssuer = jwtSettings["Issuer"],
-                    //ValidateAudience = true,
-                    //ValidAudience = jwtSettings["Audience"],
-                    //ValidateLifetime = true,
-                    //ClockSkew = TimeSpan.Zero
+                    ClockSkew = TimeSpan.Zero                    
                 };
             });
 
@@ -128,6 +121,7 @@ namespace ads.feira.api
                 cfg.RegisterServicesFromAssembly(typeof(GetCategoryByIdQueryHandler).Assembly);
                 cfg.RegisterServicesFromAssembly(typeof(GetCuponByIdQueryHandler).Assembly);
                 cfg.RegisterServicesFromAssembly(typeof(GetProductByIdQueryHandler).Assembly);
+                cfg.RegisterServicesFromAssembly(typeof(GetStoreByIdQueryHandler).Assembly);
             });
 
             //Services
@@ -135,6 +129,7 @@ namespace ads.feira.api
             builder.Services.AddScoped<IAccountServices, AccountService>();
             builder.Services.AddScoped<ICuponService, CuponServices>();
             builder.Services.AddScoped<IProductServices, ProductServices>();
+            builder.Services.AddScoped<IStoreServices, StoreServices>();
 
             //Repositories
             builder.Services.AddScoped<IAccountRepository, AccountRepository>();
@@ -148,16 +143,20 @@ namespace ads.feira.api
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             //Validators
-            builder.Services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<CategoryValidator>());
+            builder.Services.AddFluentValidation(
+                fv => fv.RegisterValidatorsFromAssemblyContaining<CategoryValidator>());
 
 
             //Roles
             builder.Services.AddScoped<ISeedUserRoleInitial, SeedUserRoleInitial>();
 
             builder.Services.AddControllers();
+                      
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(x =>
             {
+                x.SchemaFilter<EnumSchemaFilter>();
                 x.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",

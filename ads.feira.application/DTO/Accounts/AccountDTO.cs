@@ -20,7 +20,7 @@ namespace ads.feira.application.DTO.Accounts
         public bool PrivacyAccept { get; set; } = true;
 
         [DisplayName("Ativo")]
-        public bool IsActive { get; set; } = true;
+        public bool IsActive { get; set; } = true;        
 
         [DisplayName("Role")]
         public UserType UserType { get; set; }

@@ -32,7 +32,7 @@ namespace ads.feira.api.Controllers
         public async Task<ActionResult<IEnumerable<CategoryViewModel>>> GetAllCategories()
         {
             var categories = await _categoryServices.GetAll();
-            return Ok(_mapper.Map<IEnumerable<CategoryViewModel>>(categories));
+            return Ok(_mapper.Map<IEnumerable<CategoryDTO>>(categories));
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace ads.feira.api.Controllers
             if (category == null)
                 return NotFound();
 
-            return Ok(_mapper.Map<CategoryViewModel>(category));
+            return Ok(_mapper.Map<CategoryDTO>(category));
         }
 
         /// <summary>

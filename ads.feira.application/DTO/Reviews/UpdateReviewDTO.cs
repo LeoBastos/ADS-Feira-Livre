@@ -1,9 +1,6 @@
-﻿using ads.feira.domain.Entity.Accounts;
-using ads.feira.domain.Entity.Stores;
-
-namespace ads.feira.application.DTO.Reviews
+﻿namespace ads.feira.application.DTO.Reviews
 {
-    public class ReviewDTO
+    public class UpdateReviewDTO
     {
         public int Id { get; set; }
         public string UserId { get; set; }

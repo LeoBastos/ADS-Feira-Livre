@@ -5,19 +5,26 @@ using ads.feira.api.Helpers.Settings;
 using ads.feira.application.CQRS.Categories.Handlers.Queries;
 using ads.feira.application.CQRS.Cupons.Handlers.Queries;
 using ads.feira.application.CQRS.Products.Handlers.Queries;
+using ads.feira.application.CQRS.Reviews.Handlers.Queries;
 using ads.feira.application.CQRS.Stores.Handlers.Queries;
 using ads.feira.application.Interfaces.Accounts;
 using ads.feira.application.Interfaces.Categories;
 using ads.feira.application.Interfaces.Cupons;
 using ads.feira.application.Interfaces.Products;
+using ads.feira.application.Interfaces.Reviews;
 using ads.feira.application.Interfaces.Stores;
 using ads.feira.application.Mappings;
 using ads.feira.application.Services.Accounts;
 using ads.feira.application.Services.Categories;
 using ads.feira.application.Services.Cupons;
 using ads.feira.application.Services.Products;
+using ads.feira.application.Services.Reviews;
 using ads.feira.application.Services.Stores;
 using ads.feira.application.Validators.Categories;
+using ads.feira.application.Validators.Cupons;
+using ads.feira.application.Validators.Products;
+using ads.feira.application.Validators.Reviews;
+using ads.feira.application.Validators.Stores;
 using ads.feira.domain.Entity.Accounts;
 using ads.feira.domain.Interfaces.Accounts;
 using ads.feira.domain.Interfaces.Categories;
@@ -122,6 +129,7 @@ namespace ads.feira.api
                 cfg.RegisterServicesFromAssembly(typeof(GetCuponByIdQueryHandler).Assembly);
                 cfg.RegisterServicesFromAssembly(typeof(GetProductByIdQueryHandler).Assembly);
                 cfg.RegisterServicesFromAssembly(typeof(GetStoreByIdQueryHandler).Assembly);
+                cfg.RegisterServicesFromAssembly(typeof(GetReviewByIdQueryHandler).Assembly);
             });
 
             //Services
@@ -130,6 +138,7 @@ namespace ads.feira.api
             builder.Services.AddScoped<ICuponService, CuponServices>();
             builder.Services.AddScoped<IProductServices, ProductServices>();
             builder.Services.AddScoped<IStoreServices, StoreServices>();
+            builder.Services.AddScoped<IReviewServices, ReviewServices>();
 
             //Repositories
             builder.Services.AddScoped<IAccountRepository, AccountRepository>();

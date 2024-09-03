@@ -1,4 +1,5 @@
-﻿using ads.feira.api.Models.Cupons;
+﻿using ads.feira.api.Models.Categories;
+using ads.feira.api.Models.Cupons;
 using ads.feira.application.DTO.Cupons;
 using ads.feira.application.Interfaces.Cupons;
 using AutoMapper;
@@ -44,22 +45,25 @@ namespace ads.feira.api.Controllers
 
        
         [HttpPost]
-        public async Task<ActionResult> Create([FromBody] CreateCuponDTO cuponDto)
+        public async Task<ActionResult<CreateCuponViewModel>> Create([FromBody] CreateCuponViewModel cuponViewModel)
         {
-            if (cuponDto == null)
+            if (cuponViewModel == null)
                 return BadRequest("Invalid Data");
 
+            var cuponDto = _mapper.Map<CreateCuponDTO>(cuponViewModel);
             await _cuponService.Create(cuponDto);
 
-            return new CreatedAtRouteResult("GetCuponById", new { id = cuponDto.Id }, cuponDto);
+            return Ok("Cupon cadastrado.");
         }
 
         [HttpPut]
-        public async Task<ActionResult> Update([FromForm] UpdateCuponDTO cuponDto)
+        [HttpPut("{id}")]
+        public async Task<ActionResult<UpdateCuponViewModel>> Update([FromBody] UpdateCuponViewModel cuponViewModel)
         {
-            if (cuponDto == null)
+            if (cuponViewModel == null)
                 return BadRequest("Invalid Data");
 
+            var cuponDto = _mapper.Map<UpdateCuponDTO>(cuponViewModel);
             await _cuponService.Update(cuponDto);
 
             return Ok(cuponDto);
@@ -80,7 +84,7 @@ namespace ads.feira.api.Controllers
         }
 
         [HttpPost("addProduct")]
-        public async Task<ActionResult> AddProductToCupon([FromForm] AddProductToCuponViewModel model)
+        public async Task<ActionResult<AddProductToCuponViewModel>> AddProductToCupon([FromBody] AddProductToCuponViewModel model)
         {
             await _cuponService.AddProductToCupon(model.CuponId, model.ProductId);
             return Ok();
@@ -94,13 +98,13 @@ namespace ads.feira.api.Controllers
         }
 
         [HttpPost("addStore")]
-        public async Task<ActionResult> AddStoreToCupon([FromForm] AddStoreToCuponViewModel model)
+        public async Task<ActionResult<AddStoreToCuponViewModel>> AddStoreToCupon([FromBody] AddStoreToCuponViewModel model)
         {
             await _cuponService.AddStoreToCupon(model.CuponId, model.StoreId);
             return Ok();
         }
 
-        [HttpPost("removeStore")]
+        [HttpPost("removeStore")]       
         public async Task<ActionResult> RemoveStoreFromCupon([FromForm] RemoveStoreFromCuponViewModel model)
         {
             await _cuponService.RemoveStoreFromCupon(model.CuponId, model.StoreId);

@@ -1,10 +1,8 @@
 ﻿using ads.feira.api.Helpers;
-using ads.feira.api.Models.Accounts;
 using ads.feira.api.Models.Categories;
 using ads.feira.api.Models.Cupons;
 using ads.feira.api.Models.Products;
 using ads.feira.api.Models.Stores;
-using ads.feira.application.DTO.Accounts;
 using ads.feira.application.DTO.Categories;
 using ads.feira.application.DTO.Cupons;
 using ads.feira.application.DTO.Products;
@@ -18,7 +16,7 @@ namespace ads.feira.api.ApiMappings
         public ApiMapping()
         {
             #region Category
-            CreateMap<CategoryDTO, CategoryViewModel>().ReverseMap();
+            CreateMap<CategoryDTO, CategoryViewModel>().ForMember(dest => dest.Assets, opt => opt.Ignore());
             CreateMap<CreateCategoryDTO, CreateCategoryViewModel>().ReverseMap();
             CreateMap<UpdateCategoryDTO, UpdateCategoryViewModel>().ReverseMap();
 
@@ -49,7 +47,7 @@ namespace ads.feira.api.ApiMappings
             #region Stores
             CreateMap<StoreDTO, StoreViewModel>().ReverseMap();
             CreateMap<CreateStoreDTO, CreateStoreViewModel>().ReverseMap();
-            CreateMap<UpdateStoreDTO, UpdateStoreViewModel>().ReverseMap();            
+            CreateMap<UpdateStoreDTO, UpdateStoreViewModel>().ReverseMap();
             #endregion
         }
 
@@ -61,7 +59,7 @@ namespace ads.feira.api.ApiMappings
         {
             if (source.Assets != null)
             {
-               
+
                 return FilesExtensions.UploadImage(source.Assets).Result;
             }
             return null;

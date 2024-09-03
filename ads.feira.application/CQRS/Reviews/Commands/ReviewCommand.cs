@@ -1,9 +1,9 @@
-﻿using ads.feira.domain.Entity.Accounts;
-using ads.feira.domain.Entity.Stores;
+﻿using ads.feira.domain.Entity.Reviews;
+using MediatR;
 
-namespace ads.feira.application.DTO.Reviews
+namespace ads.feira.application.CQRS.Reviews.Commands
 {
-    public class ReviewDTO
+    public class ReviewCommand : IRequest<Review>
     {
         public int Id { get; set; }
         public string UserId { get; set; }

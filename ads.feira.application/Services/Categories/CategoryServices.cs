@@ -5,7 +5,6 @@ using ads.feira.application.Interfaces.Categories;
 using ads.feira.domain.Interfaces.Categories;
 using AutoMapper;
 using MediatR;
-using System.Linq.Expressions;
 
 namespace ads.feira.application.Services.Categories
 {
@@ -14,7 +13,7 @@ namespace ads.feira.application.Services.Categories
         private readonly ICategoryRepository _context;
         private readonly IMapper _mapper;
         private readonly IMediator _mediator;
-               
+
         public CategoryServices(IMapper mapper, ICategoryRepository context, IMediator mediator)
         {
             _context = context;
@@ -140,7 +139,7 @@ namespace ads.feira.application.Services.Categories
             };
             await _mediator.Send(removeProductCommand);
         }
-        
+
         #endregion
     }
 }

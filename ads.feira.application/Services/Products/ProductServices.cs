@@ -6,7 +6,6 @@ using ads.feira.application.Interfaces.Products;
 using ads.feira.domain.Interfaces.Products;
 using AutoMapper;
 using MediatR;
-using System.Linq.Expressions;
 
 namespace ads.feira.application.Services.Products
 {
@@ -22,6 +21,13 @@ namespace ads.feira.application.Services.Products
             _mapper = mapper;
         }
 
+        #region Queries
+
+        /// <summary>
+        /// Busca Produto por Id
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns>Retorna uma LINQ Expression com um produto</returns>
         public async Task<ProductDTO> GetById(int id)
         {
             var productQuery = new GetProdructByIdQuery(id);
@@ -33,7 +39,10 @@ namespace ads.feira.application.Services.Products
             return _mapper.Map<ProductDTO>(result);
         }
 
-
+        /// <summary>
+        /// Retorna todos produtos
+        /// </summary>      
+        /// <returns>Retorna uma LINQ Expression com todos produtos</returns>
         public async Task<IEnumerable<ProductDTO>> GetAll()
         {
             var productQuery = new GetAllProductQuery();
@@ -41,6 +50,15 @@ namespace ads.feira.application.Services.Products
             return _mapper.Map<IEnumerable<ProductDTO>>(result);
         }
 
+        #endregion
+
+        #region Commands
+
+        /// <summary>
+        /// Add a Entity
+        /// </summary>
+        /// <param name="entity">Produto</param>
+        /// <returns></returns>
         public async Task Create(CreateProductDTO productDTO)
         {
             var productCreateCommand = _mapper.Map<ProductCreateCommand>(productDTO);
@@ -54,6 +72,10 @@ namespace ads.feira.application.Services.Products
 
         }
 
+        /// <summary>
+        /// Update a Entity
+        /// </summary>
+        /// <param name="entity">Produto</param>
         public async Task Update(UpdateProductDTO productDTO)
         {
             var productUpdateCommand = _mapper.Map<ProductUpdateCommand>(productDTO);
@@ -66,12 +88,20 @@ namespace ads.feira.application.Services.Products
             await _mediator.Send(productUpdateCommand);
         }
 
+        /// <summary>
+        /// Remove a Entity
+        /// </summary>
+        /// <param name="entity">Produto</param>
         public async Task Remove(int id)
         {
             var productRemoveCommand = new ProductRemoveCommand(id);
-            await _mediator.Send(productRemoveCommand); ;
+            await _mediator.Send(productRemoveCommand);
         }
 
+        #endregion
+
+
+        //Métodos abaixo, Rever para melhorar e implementar futuramente
         public async Task AddCuponToProduct(int cuponId, int productId)
         {
             var addCuponCommand = new AddCuponToProductCommand

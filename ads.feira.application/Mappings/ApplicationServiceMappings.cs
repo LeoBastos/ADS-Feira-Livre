@@ -1,16 +1,19 @@
 ﻿using ads.feira.application.CQRS.Categories.Commands;
 using ads.feira.application.CQRS.Cupons.Commands;
 using ads.feira.application.CQRS.Products.Commands;
+using ads.feira.application.CQRS.Reviews.Commands;
 using ads.feira.application.CQRS.Stores.Commands;
 using ads.feira.application.DTO.Accounts;
 using ads.feira.application.DTO.Categories;
 using ads.feira.application.DTO.Cupons;
 using ads.feira.application.DTO.Products;
+using ads.feira.application.DTO.Reviews;
 using ads.feira.application.DTO.Stores;
 using ads.feira.domain.Entity.Accounts;
 using ads.feira.domain.Entity.Categories;
 using ads.feira.domain.Entity.Cupons;
 using ads.feira.domain.Entity.Products;
+using ads.feira.domain.Entity.Reviews;
 using ads.feira.domain.Entity.Stores;
 using AutoMapper;
 
@@ -38,13 +41,9 @@ namespace ads.feira.application.Mappings
             #region Cupon
             CreateMap<Cupon, CuponDTO>().ReverseMap();
             CreateMap<Cupon, CreateCuponDTO>().ReverseMap();
-            CreateMap<Cupon, UpdateCuponDTO>().ReverseMap();
-            CreateMap<Cupon, CuponCreateCommand>().ReverseMap();
-            CreateMap<Cupon, CuponUpdateCommand>().ReverseMap();
-
-            CreateMap<CuponDTO, CuponCreateCommand>().ReverseMap();
-            CreateMap<CuponCreateCommand, CuponDTO>().ReverseMap();
-            CreateMap<CreateCuponDTO, CuponCreateCommand>().ReverseMap(); // Adicione esta linha
+            CreateMap<Cupon, UpdateCuponDTO>().ReverseMap();                  
+            CreateMap<CreateCuponDTO, CuponCreateCommand>().ReverseMap();
+            CreateMap<UpdateCuponDTO, CuponUpdateCommand>().ReverseMap();
             #endregion
 
             #region Products
@@ -63,6 +62,14 @@ namespace ads.feira.application.Mappings
             CreateMap<CreateStoreDTO, StoreCreateCommand>().ReverseMap();
             CreateMap<UpdateStoreDTO, StoreCreateCommand>().ReverseMap();
 
+            #endregion
+
+            #region Reviews
+            CreateMap<Review, ReviewDTO>().ReverseMap();
+            CreateMap<Review, CreateReviewDTO>().ReverseMap();
+            CreateMap<Review, UpdateReviewDTO>().ReverseMap();
+            CreateMap<CreateReviewDTO, ReviewCreateCommand>().ReverseMap();
+            CreateMap<UpdateReviewDTO, ReviewUpdateCommand>().ReverseMap();
             #endregion
         }
     }

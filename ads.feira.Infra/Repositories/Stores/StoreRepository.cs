@@ -42,17 +42,17 @@ namespace ads.feira.Infra.Repositories.Stores
                     .OrderBy(t => t.Name)
                     .Where(p => p.IsActive == true)
                     .ToListAsync();
-        }
+        }       
 
-        #endregion
+            #endregion
 
-        #region Commands
-        /// <summary>
-        /// Add a Entity
-        /// </summary>
-        /// <param name="entity">Lojas</param>
-        /// <returns></returns>
-        public async Task<Store> CreateAsync(Store entity)
+            #region Commands
+            /// <summary>
+            /// Add a Entity
+            /// </summary>
+            /// <param name="entity">Lojas</param>
+            /// <returns></returns>
+            public async Task<Store> CreateAsync(Store entity)
         {
             _context.Add(entity);
             return entity;

@@ -1,6 +1,6 @@
-﻿namespace ads.feira.application.DTO.Reviews
+﻿namespace ads.feira.api.Models.Reviews
 {
-    public class ReviewDTO
+    public class CreateReviewViewModel
     {
         public int Id { get; set; }
         public string UserId { get; set; }

@@ -48,7 +48,7 @@ namespace ads.feira.application.Services.Stores
             var storeQuery = new GetAllStoreQuery();
             var result = await _mediator.Send(storeQuery);
             return _mapper.Map<IEnumerable<StoreDTO>>(result);
-        }
+        }      
 
         #endregion
 

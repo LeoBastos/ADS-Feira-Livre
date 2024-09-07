@@ -1,4 +1,5 @@
 ﻿using ads.feira.domain.Entity.Products;
+using ads.feira.domain.Entity.Stores;
 using ads.feira.domain.Interfaces.Products;
 using ads.feira.Infra.Context;
 using Microsoft.EntityFrameworkCore;
@@ -25,8 +26,10 @@ namespace ads.feira.Infra.Repositories.Products
         {
             return await _context.Products
                     .AsNoTracking()
-                    .Where(p => p.IsActive == true)
-                    .FirstOrDefaultAsync(t => t.Id == id);
+                    .Where(s => s.Id == id && s.IsActive)
+                    .Include(p => p.Store)
+                    .Include(p => p.Category)
+                    .FirstOrDefaultAsync();
         }
 
        
@@ -40,6 +43,23 @@ namespace ads.feira.Infra.Repositories.Products
                 .AsNoTracking()
                 .OrderBy(t => t.Name)
                 .Where(p => p.IsActive == true)
+                .Include(p => p.Store)
+                .Include(p => p.Category)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Retorna todos os Produtos de uma Loja
+        /// </summary>      
+        /// <param name="storeId"></param>
+        /// <returns>Retorna uma LINQ Expression com todos os produtos de uma Loja</returns>
+        public async Task<IEnumerable<Product>> GetProductsForStoreIdAsync(int storeId)
+        {
+            return await _context.Stores
+                .AsNoTracking()
+                .Where(s => s.Id == storeId && s.IsActive)
+                .SelectMany(s => s.Products)
+                .Include(p => p.Category)
                 .ToListAsync();
         }
 

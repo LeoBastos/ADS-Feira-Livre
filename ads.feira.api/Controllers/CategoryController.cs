@@ -1,7 +1,10 @@
 ﻿using ads.feira.api.Helpers;
 using ads.feira.api.Models.Categories;
 using ads.feira.application.DTO.Categories;
+using ads.feira.application.DTO.Stores;
 using ads.feira.application.Interfaces.Categories;
+using ads.feira.domain.Entity.Categories;
+using ads.feira.domain.Entity.Stores;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,13 +29,13 @@ namespace ads.feira.api.Controllers
         /// </summary>       
         [Authorize]
         [HttpGet]
-        [ProducesResponseType(typeof(CategoryViewModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CategoryDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<CategoryViewModel>>> GetAllCategories()
+        public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetAllCategories()
         {
-            var categories = await _categoryServices.GetAll();
-            return Ok(_mapper.Map<IEnumerable<CategoryDTO>>(categories));
+            var categories = await _categoryServices.GetAll();           
+            return Ok(categories);
         }
 
         /// <summary>
@@ -41,16 +44,16 @@ namespace ads.feira.api.Controllers
         /// <param name="Id"></param>
         [Authorize]
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(CategoryViewModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CategoryDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<CategoryViewModel>> GetCategoryById(int id)
+        public async Task<ActionResult<CategoryDTO>> GetCategoryById(int id)
         {
             var category = await _categoryServices.GetById(id);
             if (category == null)
                 return NotFound();
 
-            return Ok(_mapper.Map<CategoryDTO>(category));
+            return Ok(category);
         }
 
         /// <summary>
@@ -58,25 +61,21 @@ namespace ads.feira.api.Controllers
         /// </summary> 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        [ProducesResponseType(typeof(CreateCategoryViewModel), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(CreateCategoryDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<CreateCategoryViewModel>> CreateCategory([FromForm] CreateCategoryViewModel createViewModel)
+        public async Task<ActionResult<CreateCategoryDTO>> CreateCategory([FromForm] CreateCategoryDTO createDTO)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var category = new CreateCategoryDTO
+
+            if (createDTO.Assets != null)
             {
-                Name = createViewModel.Name,
-                Description = createViewModel.Description,
-                Assets = await FilesExtensions.UploadImage(createViewModel.Assets) ?? "~/images/noimage.png",
-                Type = createViewModel.Type,
-            };
+                createDTO.AssetsPath = await FilesExtensions.UploadImage(createDTO.Assets);
+            }
 
-            //var categoryDTO = _mapper.Map<CreateCategoryDTO>(createViewModel);
-            await _categoryServices.Create(category);
-
+            await _categoryServices.Create(createDTO);
 
             return Ok("Categoria cadastrada.");
         }
@@ -86,20 +85,19 @@ namespace ads.feira.api.Controllers
         /// </summary> 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        [ProducesResponseType(typeof(UpdateCategoryViewModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(UpdateCategoryDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UpdateCategory(int id, [FromForm] UpdateCategoryViewModel updateViewModel)
+        public async Task<IActionResult> UpdateCategory(int id, [FromForm] UpdateCategoryDTO updateDTO)
         {
             if (id == null)
                 return BadRequest("ID mismatch");
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);            
-
-            var categoryDTO = _mapper.Map<UpdateCategoryDTO>(updateViewModel);
-            await _categoryServices.Update(categoryDTO);
+           
+            await _categoryServices.Update(updateDTO);
 
             return Ok("Categoria atualizada");
         }

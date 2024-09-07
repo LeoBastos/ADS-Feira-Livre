@@ -36,7 +36,7 @@ namespace ads.feira.application.Services.Products
             if (result == null)
                 throw new NullReferenceException("Produto não encontrado com o id fornecido.");
 
-            return _mapper.Map<ProductDTO>(result);
+            return _mapper.Map<ProductDTO>(result);           
         }
 
         /// <summary>
@@ -49,6 +49,20 @@ namespace ads.feira.application.Services.Products
             var result = await _mediator.Send(productQuery);
             return _mapper.Map<IEnumerable<ProductDTO>>(result);
         }
+
+
+        /// <summary>
+        /// Retorna todos os produtos de uma Store
+        /// </summary>
+        /// <param name="storeId"></param>
+        /// <returns>Retorna uma LINQ Expression com um produto</returns>
+        public async Task<IEnumerable<ProductStoreDTO>> GetProductsForStoreId(int storeId)
+        {
+            var productForStoreIdQuery = new GetProductForStoreIdQuery(storeId);
+            var result = await _mediator.Send(productForStoreIdQuery);
+            return _mapper.Map<IEnumerable<ProductStoreDTO>>(result);
+        }
+
 
         #endregion
 

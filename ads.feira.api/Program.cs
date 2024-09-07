@@ -21,10 +21,6 @@ using ads.feira.application.Services.Products;
 using ads.feira.application.Services.Reviews;
 using ads.feira.application.Services.Stores;
 using ads.feira.application.Validators.Categories;
-using ads.feira.application.Validators.Cupons;
-using ads.feira.application.Validators.Products;
-using ads.feira.application.Validators.Reviews;
-using ads.feira.application.Validators.Stores;
 using ads.feira.domain.Entity.Accounts;
 using ads.feira.domain.Interfaces.Accounts;
 using ads.feira.domain.Interfaces.Categories;
@@ -106,7 +102,7 @@ namespace ads.feira.api
                     ValidAudience = builder.Configuration["Jwt:Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(
                             Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"])),
-                    ClockSkew = TimeSpan.Zero                    
+                    ClockSkew = TimeSpan.Zero
                 };
             });
 
@@ -160,7 +156,7 @@ namespace ads.feira.api
             builder.Services.AddScoped<ISeedUserRoleInitial, SeedUserRoleInitial>();
 
             builder.Services.AddControllers();
-                      
+
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(x =>

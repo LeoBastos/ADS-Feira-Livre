@@ -7,7 +7,7 @@ namespace ads.feira.application.Validators.Stores
     {
         public StoreValidator()
         {
-            RuleFor(s => s.StoreOwner)
+            RuleFor(s => s.StoreOwnerId)
                 .NotNull()
                 .NotEmpty()
                 .WithMessage("Store de possuir um Id do usuário");

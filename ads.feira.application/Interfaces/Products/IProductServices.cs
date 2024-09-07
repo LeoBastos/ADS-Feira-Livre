@@ -1,5 +1,4 @@
 ﻿using ads.feira.application.DTO.Products;
-using System.Linq.Expressions;
 
 namespace ads.feira.application.Interfaces.Products
 {
@@ -7,6 +6,9 @@ namespace ads.feira.application.Interfaces.Products
     {
         Task<IEnumerable<ProductDTO>> GetAll();
         Task<ProductDTO> GetById(int id);
+
+        Task<IEnumerable<ProductStoreDTO>> GetProductsForStoreId(int storeId);
+
         Task AddCuponToProduct(int cuponId, int productId);
         Task RemoveCuponFromProduct(int cuponId, int productId);
 

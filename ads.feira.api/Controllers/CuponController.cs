@@ -21,6 +21,9 @@ namespace ads.feira.api.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// - Retorna todos os cupons
+        /// </summary>    
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CuponDTO>>> GetAllCupons()
         {
@@ -32,6 +35,11 @@ namespace ads.feira.api.Controllers
             return Ok(cupons);
         }
 
+
+        /// <summary>
+        /// - Busca um cupon por Id.
+        /// </summary>
+        /// <param name="Id"></param>
         [HttpGet("{id}")]
         public async Task<ActionResult<CuponDTO>> GetCuponById(int id)
         {
@@ -43,7 +51,9 @@ namespace ads.feira.api.Controllers
             return Ok(cupon);
         }
 
-       
+        /// <summary>
+        /// - Cria um Cupon
+        /// </summary> 
         [HttpPost]
         public async Task<ActionResult<CreateCuponViewModel>> Create([FromBody] CreateCuponViewModel cuponViewModel)
         {
@@ -56,6 +66,9 @@ namespace ads.feira.api.Controllers
             return Ok("Cupon cadastrado.");
         }
 
+        /// <summary>
+        /// - Atualiza um Cupon
+        /// </summary> 
         [HttpPut]
         [HttpPut("{id}")]
         public async Task<ActionResult<UpdateCuponViewModel>> Update([FromBody] UpdateCuponViewModel cuponViewModel)
@@ -69,6 +82,11 @@ namespace ads.feira.api.Controllers
             return Ok(cuponDto);
         }
 
+
+        /// <summary>
+        /// - Remove um Cupon
+        /// </summary> 
+        /// <param name="Id"></param>
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
@@ -83,27 +101,41 @@ namespace ads.feira.api.Controllers
             return Ok(cupon);
         }
 
+
+        /// <summary>
+        /// - Not Implemment Yeat
+        /// </summary> 
+        /// <param name="Id"></param>
         [HttpPost("addProduct")]
         public async Task<ActionResult<AddProductToCuponViewModel>> AddProductToCupon([FromBody] AddProductToCuponViewModel model)
         {
             await _cuponService.AddProductToCupon(model.CuponId, model.ProductId);
             return Ok();
         }
-
+        /// <summary>
+        /// - Not Implemment Yeat
+        /// </summary> 
+        /// <param name="Id"></param>
         [HttpPost("removeProduct")]
         public async Task<ActionResult> RemoveProductFromCupon([FromForm] RemoveProductFromCuponViewModel model)
         {
             await _cuponService.RemoveProductFromCupon(model.CuponId, model.ProductId);
             return Ok();
         }
-
+        /// <summary>
+        /// - Not Implemment Yeat
+        /// </summary> 
+        /// <param name="Id"></param>
         [HttpPost("addStore")]
         public async Task<ActionResult<AddStoreToCuponViewModel>> AddStoreToCupon([FromBody] AddStoreToCuponViewModel model)
         {
             await _cuponService.AddStoreToCupon(model.CuponId, model.StoreId);
             return Ok();
         }
-
+        /// <summary>
+        /// - Not Implemment Yeat
+        /// </summary> 
+        /// <param name="Id"></param>
         [HttpPost("removeStore")]       
         public async Task<ActionResult> RemoveStoreFromCupon([FromForm] RemoveStoreFromCuponViewModel model)
         {

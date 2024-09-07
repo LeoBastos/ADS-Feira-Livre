@@ -35,7 +35,7 @@ namespace ads.feira.api.Controllers
         {
 
             var stores = await _storeServices.GetAll();
-            return Ok(_mapper.Map<IEnumerable<StoreViewModel>>(stores));
+            return Ok(_mapper.Map<IEnumerable<StoreDTO>>(stores));
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace ads.feira.api.Controllers
             if (store == null)
                 return NotFound();
 
-            return Ok(_mapper.Map<StoreViewModel>(store));
+            return Ok(_mapper.Map<StoreDTO>(store));
         }
 
 

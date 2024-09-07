@@ -1,8 +1,5 @@
-﻿using ads.feira.api.Helpers;
-using ads.feira.api.Models.Products;
-using ads.feira.application.DTO.Products;
+﻿using ads.feira.application.DTO.Products;
 using ads.feira.application.Interfaces.Products;
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ads.feira.api.Controllers
@@ -12,23 +9,34 @@ namespace ads.feira.api.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductServices _productServices;
-        private readonly IMapper _mapper;
 
-        public ProductController(IProductServices productServices, IMapper mapper)
+        public ProductController(IProductServices productServices)
         {
             _productServices = productServices;
-            _mapper = mapper;
         }
 
+        /// <summary>
+        /// - Retorna todos Produtos
+        /// </summary>  
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductViewModel>>> GetAll()
+        [ProducesResponseType(typeof(ProductDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetAll()
         {
             var products = await _productServices.GetAll();
             return Ok(products);
         }
 
+        /// <summary>
+        /// - Busca um Produto por Id.
+        /// </summary>
+        /// <param name="Id"></param>
         [HttpGet("{id}")]
-        public async Task<ActionResult<ProductViewModel>> GetById(int id)
+        [ProducesResponseType(typeof(ProductDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ProductDTO>> GetById(int id)
         {
             var product = await _productServices.GetById(id);
             if (product == null)
@@ -38,30 +46,61 @@ namespace ads.feira.api.Controllers
             return Ok(product);
         }
 
-        [HttpPost]
-        public async Task<ActionResult> Create([FromForm] CreateProductViewModel productViewModel)
+        /// <summary>
+        /// - Retorna todos Produtos de uma loja
+        /// </summary>  
+        /// <param name="storeId"></param>
+        [HttpGet("ProductsByStoreId/{storeId}")]
+        [ProducesResponseType(typeof(ProductStoreDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IEnumerable<ProductStoreDTO>>> GetProductByStoresId(int storeId)
         {
-            if (productViewModel == null)
+            var products = await _productServices.GetProductsForStoreId(storeId);
+            if (products == null || !products.Any())
+                return NotFound();
+            return Ok(products);
+        }
+
+        /// <summary>
+        /// - Cria um Produto
+        /// </summary> 
+        [HttpPost]
+        [ProducesResponseType(typeof(CreateProductDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> Create([FromForm] CreateProductDTO createProductDto)
+        {
+            if (createProductDto == null)
                 return BadRequest();
 
-            await FilesExtensions.UploadImage(productViewModel.Assets);
-
-            await _productServices.Create(_mapper.Map<CreateProductDTO>(productViewModel));
+            await _productServices.Create(createProductDto);
 
             return Ok("Produto Adicionado.");
         }
 
+        /// <summary>
+        /// - Atualiza uma Produto
+        /// </summary> 
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, [FromBody] UpdateProductViewModel productViewModel)
+        [ProducesResponseType(typeof(UpdateProductDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> Update(int id, [FromBody] UpdateProductDTO updateProductDto)
         {
-            if (id != productViewModel.Id)
+            if (id != updateProductDto.Id)
                 return BadRequest();
 
-            await _productServices.Update(_mapper.Map<UpdateProductDTO>(productViewModel));
+            await _productServices.Update(updateProductDto);
 
             return NoContent();
         }
 
+        /// <summary>
+        /// - Remove um Produto
+        /// </summary> 
+        /// <param name="Id"></param>
         [HttpDelete("{id}")]
         public async Task<ActionResult> Remove(int id)
         {
@@ -69,14 +108,31 @@ namespace ads.feira.api.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// - Cria um Cuponde Desconto para um Produto - Not Implement Yeat
+        /// </summary> 
+        /// <param name="productId"></param>
+        /// <param name="cuponId"></param>
         [HttpPost("{productId}/cupons/{cuponId}")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> AddCuponToProduct(int productId, int cuponId)
         {
             await _productServices.AddCuponToProduct(cuponId, productId);
             return NoContent();
         }
 
+        /// <summary>
+        /// - Remove um Cuponde Desconto para um Produto - Not Implement Yeat
+        /// </summary> 
+        /// <param name="productId"></param>
+        /// <param name="cuponId"></param>
         [HttpDelete("{productId}/cupons/{cuponId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> RemoveCuponFromProduct(int productId, int cuponId)
         {
             await _productServices.RemoveCuponFromProduct(cuponId, productId);

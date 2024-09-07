@@ -7,11 +7,11 @@ namespace ads.feira.application.Validators.Products
     {
         public ProductValidator()
         {
-            RuleFor(c => c.StoreId)
+            RuleFor(c => c.Store)
                 .NotNull()
                 .NotEmpty();
 
-            RuleFor(c => c.CategoryId)
+            RuleFor(c => c.Category)
                 .NotNull()
                 .NotEmpty();
 

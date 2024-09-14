@@ -1,8 +1,11 @@
-﻿using ads.feira.application.CQRS.Cupons.Commands;
+﻿using ads.feira.application.CQRS.Categories.Queries;
+using ads.feira.application.CQRS.Cupons.Commands;
 using ads.feira.application.CQRS.Cupons.Queries;
+using ads.feira.application.DTO.Categories;
 using ads.feira.application.DTO.Cupons;
 using ads.feira.application.Interfaces.Cupons;
 using ads.feira.domain.Interfaces.Cupons;
+using ads.feira.domain.Paginated;
 using AutoMapper;
 using MediatR;
 
@@ -28,7 +31,7 @@ namespace ads.feira.application.Services.Cupons
         /// </summary>
         /// <param name="Id"></param>
         /// <returns>Retorna uma LINQ Expression com um Cupon</returns>
-        public async Task<CuponDTO> GetById(int id)
+        public async Task<CuponDTO> GetById(string id)
         {
             var cuponQuery = new GetCuponByIdQuery(id);
             var result = await _mediator.Send(cuponQuery);
@@ -43,11 +46,30 @@ namespace ads.feira.application.Services.Cupons
         /// Retorna todos cupons
         /// </summary>      
         /// <returns>Retorna uma LINQ Expression com todos cupons</returns>
-        public async Task<IEnumerable<CuponDTO>> GetAll()
+        public async Task<PagedResult<CuponDTO>> GetAll(int pageNumber, int pageSize)
         {
-            var cuponQuery = new GetAllCuponQuery();
-            var result = await _mediator.Send(cuponQuery);
-            return _mapper.Map<IEnumerable<CuponDTO>>(result);
+            var query = new GetAllCuponQuery
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+
+            var result = await _mediator.Send(query);
+
+            var dtos = _mapper.Map<IEnumerable<CuponDTO>>(result.Items);
+
+            return new PagedResult<CuponDTO>
+            {
+                Items = dtos,
+                TotalItems = result.TotalItems,
+                PageNumber = result.PageNumber,
+                PageSize = result.PageSize,
+                TotalPages = result.TotalPages
+            };
+
+            //var cuponQuery = new GetAllCuponQuery();
+            //var result = await _mediator.Send(cuponQuery);
+            //return _mapper.Map<IEnumerable<CuponDTO>>(result);
         }
 
         #endregion
@@ -91,7 +113,7 @@ namespace ads.feira.application.Services.Cupons
         /// Remove a Entity
         /// </summary>
         /// <param name="entity">Remove</param>
-        public async Task Remove(int id)
+        public async Task Remove(string id)
         {
             var cuponRemoveCommand = new CuponRemoveCommand(id);
             await _mediator.Send(cuponRemoveCommand);
@@ -101,25 +123,25 @@ namespace ads.feira.application.Services.Cupons
 
         //Métodos abaixo, Rever para melhorar e implementar futuramente
 
-        public async Task AddProductToCupon(int cuponId, int productId)
+        public async Task AddProductToCupon(string cuponId, string productId)
         {
             var addProductCommand = new AddProductToCuponCommand(cuponId, productId);
             await _mediator.Send(addProductCommand);
         }
 
-        public async Task RemoveProductFromCupon(int cuponId, int productId)
+        public async Task RemoveProductFromCupon(string cuponId, string productId)
         {
             var removeProductCommand = new RemoveProductFromCuponCommand(cuponId, productId);
             await _mediator.Send(removeProductCommand);
         }
 
-        public async Task AddStoreToCupon(int cuponId, int storeId)
+        public async Task AddStoreToCupon(string cuponId, string storeId)
         {
             var addStoreCommand = new AddStoreToCuponCommand(cuponId, storeId);
             await _mediator.Send(addStoreCommand);
         }
 
-        public async Task RemoveStoreFromCupon(int cuponId, int storeId)
+        public async Task RemoveStoreFromCupon(string cuponId, string storeId)
         {
             var removeStoreCommand = new RemoveStoreFromCuponCommand(cuponId, storeId);
             await _mediator.Send(removeStoreCommand);

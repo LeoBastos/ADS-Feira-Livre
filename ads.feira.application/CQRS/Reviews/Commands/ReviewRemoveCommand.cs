@@ -5,9 +5,9 @@ namespace ads.feira.application.CQRS.Reviews.Commands
 {
     public class ReviewRemoveCommand : IRequest<Review>
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
 
-        public ReviewRemoveCommand(int id)
+        public ReviewRemoveCommand(string id)
         {
             Id = id;
         }

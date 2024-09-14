@@ -1,4 +1,5 @@
-﻿using ads.feira.api.Helpers;
+﻿using ads.feira.api.Helpers.EnumHelper;
+using ads.feira.api.Helpers.Images;
 using ads.feira.api.Models.Accounts;
 using ads.feira.application.DTO.Accounts;
 using ads.feira.application.Interfaces.Accounts;

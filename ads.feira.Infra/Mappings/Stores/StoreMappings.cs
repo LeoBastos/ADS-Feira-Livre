@@ -1,5 +1,4 @@
-﻿using ads.feira.domain.Entity.Accounts;
-using ads.feira.domain.Entity.Stores;
+﻿using ads.feira.domain.Entity.Stores;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,14 +8,17 @@ namespace ads.feira.Infra.Mappings.Stores
     {
         public void Configure(EntityTypeBuilder<Store> builder)
         {
-            builder.HasKey(s => s.Id);
+            builder.HasKey(c => c.Id);
+            builder.Property(c => c.Id)
+                   .HasMaxLength(36)
+                   .ValueGeneratedOnAdd();
             builder.Property(s => s.StoreOwnerId).IsRequired();
             builder.Property(s => s.Name).IsRequired().HasMaxLength(100);
             builder.Property(s => s.Description).IsRequired();
             builder.Property(s => s.Assets).HasMaxLength(250);
             builder.Property(s => s.StoreNumber).IsRequired();
             builder.Property(s => s.HasDebt).IsRequired();
-            builder.Property(s => s.Locations).IsRequired();           
+            builder.Property(s => s.Locations).IsRequired();
 
             builder.HasOne(s => s.Category)
                 .WithMany(c => c.Stores)

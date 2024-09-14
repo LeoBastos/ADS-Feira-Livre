@@ -1,8 +1,11 @@
-﻿using ads.feira.application.CQRS.Reviews.Commands;
+﻿using ads.feira.application.CQRS.Categories.Queries;
+using ads.feira.application.CQRS.Reviews.Commands;
 using ads.feira.application.CQRS.Reviews.Queries;
+using ads.feira.application.DTO.Categories;
 using ads.feira.application.DTO.Reviews;
 using ads.feira.application.Interfaces.Reviews;
 using ads.feira.domain.Interfaces.Reviews;
+using ads.feira.domain.Paginated;
 using AutoMapper;
 using MediatR;
 
@@ -27,7 +30,7 @@ namespace ads.feira.application.Services.Reviews
         /// </summary>
         /// <param name="Id"></param>
         /// <returns>Retorna uma LINQ Expression com um review</returns>
-        public async Task<ReviewDTO> GetById(int id)
+        public async Task<ReviewDTO> GetById(string id)
         {
             var reviewQuery = new GetReviewByIdQuery(id);
             var result = await _mediator.Send(reviewQuery);
@@ -42,11 +45,29 @@ namespace ads.feira.application.Services.Reviews
         /// Retorna todas Reviews
         /// </summary>      
         /// <returns>Retorna uma LINQ Expression com todas reviews</returns>
-        public async Task<IEnumerable<ReviewDTO>> GetAll()
+        public async Task<PagedResult<ReviewDTO>> GetAll(int pageNumber, int pageSize)
         {
-            var reviewQuery = new GetAllReviewQuery();
-            var result = await _mediator.Send(reviewQuery);
-            return _mapper.Map<IEnumerable<ReviewDTO>>(result);
+            var query = new GetAllReviewQuery
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+            var result = await _mediator.Send(query);
+
+            var dtos = _mapper.Map<IEnumerable<ReviewDTO>>(result.Items);
+
+            return new PagedResult<ReviewDTO>
+            {
+                Items = dtos,
+                TotalItems = result.TotalItems,
+                PageNumber = result.PageNumber,
+                PageSize = result.PageSize,
+                TotalPages = result.TotalPages
+            };
+
+            //var reviewQuery = new GetAllReviewQuery();
+            //var result = await _mediator.Send(reviewQuery);
+            //return _mapper.Map<IEnumerable<ReviewDTO>>(result);
         }
 
         #endregion
@@ -90,7 +111,7 @@ namespace ads.feira.application.Services.Reviews
         /// Remove a Entity
         /// </summary>
         /// <param name="entity">Review</param>
-        public async Task Remove(int id)
+        public async Task Remove(string id)
         {
             var reviewtRemoveCommand = new ReviewRemoveCommand(id);
             await _mediator.Send(reviewtRemoveCommand);

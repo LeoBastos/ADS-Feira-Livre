@@ -5,7 +5,7 @@ namespace ads.feira.application.DTO.Categories
 {
     public record CategoryDTO
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         [Required]
         [StringLength(150, MinimumLength = 3)]
         [DisplayName("Nome")]
@@ -17,10 +17,7 @@ namespace ads.feira.application.DTO.Categories
         public string Description { get; set; }
 
         [DisplayName("Imagem")]
-        public string Assets { get; set; }
-
-        [Required]
-        [DisplayName("Tipo")]
-        public string Type { get; set; }
+        public string? Assets { get; set; }
+        
     }
 }

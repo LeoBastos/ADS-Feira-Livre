@@ -1,11 +1,12 @@
 ﻿using ads.feira.application.CQRS.Stores.Queries;
 using ads.feira.domain.Entity.Stores;
 using ads.feira.domain.Interfaces.Stores;
+using ads.feira.domain.Paginated;
 using MediatR;
 
 namespace ads.feira.application.CQRS.Stores.Handlers.Queries
 {
-    public class GetAllStoresQueryHandler : IRequestHandler<GetAllStoreQuery, IEnumerable<Store>>
+    public class GetAllStoresQueryHandler : IRequestHandler<GetAllStoreQuery, PagedResult<Store>>
     {
         private readonly IStoreRepository _storeRepository;
 
@@ -14,10 +15,10 @@ namespace ads.feira.application.CQRS.Stores.Handlers.Queries
             _storeRepository = storeRepository;
         }
 
-        public async Task<IEnumerable<Store>> Handle(GetAllStoreQuery request,
+        public async Task<PagedResult<Store>> Handle(GetAllStoreQuery request,
             CancellationToken cancellationToken)
         {
-            return await _storeRepository.GetAllAsync();
+            return await _storeRepository.GetAllAsync(request.PageNumber, request.PageSize);
         }
     }
 }

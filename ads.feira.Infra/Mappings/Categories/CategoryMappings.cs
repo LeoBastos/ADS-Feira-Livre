@@ -9,6 +9,9 @@ namespace ads.feira.Infra.Mappings.Categories
         public void Configure(EntityTypeBuilder<Category> builder)
         {
             builder.HasKey(c => c.Id);
+            builder.Property(c => c.Id)
+                   .HasMaxLength(36)
+                   .ValueGeneratedOnAdd();
 
             builder.Property(c => c.Name)
                 .IsRequired()
@@ -20,10 +23,7 @@ namespace ads.feira.Infra.Mappings.Categories
 
             builder.Property(c => c.Assets)
                 .HasMaxLength(250);
-
-            builder.Property(u => u.Type)
-                .HasConversion<string>();
-
+           
             builder.Property(c => c.IsActive)
                 .IsRequired();           
             

@@ -1,5 +1,7 @@
-﻿using ads.feira.domain.Entity.Stores;
+﻿using ads.feira.domain.Entity.Reviews;
+using ads.feira.domain.Entity.Stores;
 using ads.feira.domain.Interfaces.Stores;
+using ads.feira.domain.Paginated;
 using ads.feira.Infra.Context;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -22,7 +24,7 @@ namespace ads.feira.Infra.Repositories.Stores
         /// </summary>
         /// <param name="Id"></param>
         /// <returns>Retorna uma LINQ Expression com um Loja</returns>
-        public async Task<Store> GetByIdAsync(int id)
+        public async Task<Store> GetByIdAsync(string id)
         {
             return await _context.Stores
                     .AsNoTracking()
@@ -35,24 +37,40 @@ namespace ads.feira.Infra.Repositories.Stores
         /// Retorna todos os Lojas
         /// </summary>      
         /// <returns>Retorna uma LINQ Expression com todos os lojas</returns>
-        public async Task<IEnumerable<Store>> GetAllAsync()
+        public async Task<PagedResult<Store>> GetAllAsync(int pageNumber, int pageSize)
         {
-            return await _context.Stores
-                    .AsNoTracking()
-                    .OrderBy(t => t.Name)
-                    .Where(p => p.IsActive == true)
-                    .ToListAsync();
-        }       
+            var query = _context.Stores
+                .Where(p => p.IsActive == true)
+                .AsNoTracking()
+                .OrderBy(t => t.Name);
 
-            #endregion
+            var totalItems = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
-            #region Commands
-            /// <summary>
-            /// Add a Entity
-            /// </summary>
-            /// <param name="entity">Lojas</param>
-            /// <returns></returns>
-            public async Task<Store> CreateAsync(Store entity)
+            var items = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<Store>
+            {
+                Items = items,
+                TotalItems = totalItems,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalPages = totalPages
+            };
+        }
+
+        #endregion
+
+        #region Commands
+        /// <summary>
+        /// Add a Entity
+        /// </summary>
+        /// <param name="entity">Lojas</param>
+        /// <returns></returns>
+        public async Task<Store> CreateAsync(Store entity)
         {
             _context.Add(entity);
             return entity;

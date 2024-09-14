@@ -1,12 +1,13 @@
-﻿using System.Linq.Expressions;
+﻿using ads.feira.domain.Paginated;
+using System.Linq.Expressions;
 
 namespace ads.feira.domain.Interfaces
 {
     public interface IRepository<TEntity> where TEntity : class
     {
         #region Querys
-        Task<IEnumerable<TEntity>> GetAllAsync();
-        Task<TEntity> GetByIdAsync(int id);       
+        Task<PagedResult<TEntity>> GetAllAsync(int pageNumber, int pageSize);
+        Task<TEntity> GetByIdAsync(string id);       
         #endregion
 
         #region Commands

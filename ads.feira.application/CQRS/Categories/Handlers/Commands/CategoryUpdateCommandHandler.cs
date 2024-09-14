@@ -39,7 +39,7 @@ namespace ads.feira.application.CQRS.Categories.Handlers.Commands
                 }
 
 
-                category.Update(request.Id, request.Name, request.Description, request.Assets, request.Type);
+                category.Update(request.Id, request.Name, request.Description, request.Assets);
 
                 await _categoryRepository.UpdateAsync(category);
                 await _unitOfWork.Commit();

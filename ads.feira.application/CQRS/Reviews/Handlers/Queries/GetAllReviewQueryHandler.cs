@@ -1,11 +1,12 @@
 ﻿using ads.feira.application.CQRS.Reviews.Queries;
 using ads.feira.domain.Entity.Reviews;
 using ads.feira.domain.Interfaces.Reviews;
+using ads.feira.domain.Paginated;
 using MediatR;
 
 namespace ads.feira.application.CQRS.Reviews.Handlers.Queries
 {
-    public class GetAllReviewQueryHandler : IRequestHandler<GetAllReviewQuery, IEnumerable<Review>>
+    public class GetAllReviewQueryHandler : IRequestHandler<GetAllReviewQuery, PagedResult<Review>>
     {
         private readonly IReviewRepository _reviewRepository;
 
@@ -14,10 +15,10 @@ namespace ads.feira.application.CQRS.Reviews.Handlers.Queries
             _reviewRepository = reviewRepository;
         }
 
-        public async Task<IEnumerable<Review>> Handle(GetAllReviewQuery request,
+        public async Task<PagedResult<Review>> Handle(GetAllReviewQuery request,
             CancellationToken cancellationToken)
         {
-            return await _reviewRepository.GetAllAsync();
+            return await _reviewRepository.GetAllAsync(request.PageNumber, request.PageSize);
         }
     }
 }

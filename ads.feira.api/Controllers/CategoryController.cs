@@ -1,13 +1,10 @@
-﻿using ads.feira.api.Helpers;
-using ads.feira.api.Models.Categories;
+﻿using ads.feira.api.Helpers.Images;
 using ads.feira.application.DTO.Categories;
-using ads.feira.application.DTO.Stores;
 using ads.feira.application.Interfaces.Categories;
-using ads.feira.domain.Entity.Categories;
-using ads.feira.domain.Entity.Stores;
-using AutoMapper;
+using ads.feira.domain.Paginated;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace ads.feira.api.Controllers
 {
@@ -16,12 +13,12 @@ namespace ads.feira.api.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryServices _categoryServices;
-        private readonly IMapper _mapper;
+        // private readonly S3Service _s3Service;       
 
-        public CategoryController(ICategoryServices categoryServices, IMapper mapper)
+        public CategoryController(ICategoryServices categoryServices/*, S3Service s3Service*/)
         {
             _categoryServices = categoryServices;
-            _mapper = mapper;
+            //_s3Service = s3Service;
         }
 
         /// <summary>
@@ -29,12 +26,13 @@ namespace ads.feira.api.Controllers
         /// </summary>       
         [Authorize]
         [HttpGet]
+        [OutputCache(Duration = 15)]
         [ProducesResponseType(typeof(CategoryDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetAllCategories()
+        public async Task<ActionResult<PagedResult<CategoryDTO>>> GetAllCategories([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20)
         {
-            var categories = await _categoryServices.GetAll();           
+            var categories = await _categoryServices.GetAll(pageNumber, pageSize);
             return Ok(categories);
         }
 
@@ -47,8 +45,9 @@ namespace ads.feira.api.Controllers
         [ProducesResponseType(typeof(CategoryDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<CategoryDTO>> GetCategoryById(int id)
+        public async Task<ActionResult<CategoryDTO>> GetCategoryById(string id)
         {
+
             var category = await _categoryServices.GetById(id);
             if (category == null)
                 return NotFound();
@@ -69,7 +68,6 @@ namespace ads.feira.api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-
             if (createDTO.Assets != null)
             {
                 createDTO.AssetsPath = await FilesExtensions.UploadImage(createDTO.Assets);
@@ -89,14 +87,20 @@ namespace ads.feira.api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UpdateCategory(int id, [FromForm] UpdateCategoryDTO updateDTO)
+        public async Task<IActionResult> UpdateCategory(string id, [FromForm] UpdateCategoryDTO updateDTO)
         {
             if (id == null)
                 return BadRequest("ID mismatch");
 
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);            
-           
+                return BadRequest(ModelState);
+
+
+            if (updateDTO.Assets != null)
+            {
+                updateDTO.AssetsPath = await FilesExtensions.UploadImage(updateDTO.Assets);
+            }
+
             await _categoryServices.Update(updateDTO);
 
             return Ok("Categoria atualizada");
@@ -108,7 +112,7 @@ namespace ads.feira.api.Controllers
         /// <param name="Id"></param>
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> RemoveCategory(int id)
+        public async Task<IActionResult> RemoveCategory(string id)
         {
             await _categoryServices.Remove(id);
             return NoContent();

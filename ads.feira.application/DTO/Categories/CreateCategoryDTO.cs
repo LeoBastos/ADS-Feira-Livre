@@ -1,13 +1,12 @@
-﻿using ads.feira.domain.Enums.Products;
-using Microsoft.AspNetCore.Http;
-using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace ads.feira.application.DTO.Categories
 {
-    public class CreateCategoryDTO 
+    public class CreateCategoryDTO
     {
-        public int Id { get; set; }
+        public string? Id { get; set; }
         [Required]
         [StringLength(150, MinimumLength = 3)]
         [DisplayName("Nome")]
@@ -19,12 +18,8 @@ namespace ads.feira.application.DTO.Categories
         public string Description { get; set; }
 
         [DisplayName("Imagem")]
-        public IFormFile Assets { get; set; }
+        public IFormFile? Assets { get; set; }
 
-        public string AssetsPath { get; set; }
-
-        [Required]
-        [DisplayName("Tipo")]
-        public TypeCategoryEnum Type { get; set; }
+        public string? AssetsPath { get; set; }
     }
 }

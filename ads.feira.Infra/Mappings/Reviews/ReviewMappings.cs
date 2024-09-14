@@ -7,8 +7,11 @@ namespace ads.feira.Infra.Mappings.Reviews
     public class ReviewMappings : IEntityTypeConfiguration<Review>
     {
         public void Configure(EntityTypeBuilder<Review> builder)
-        {      
-            builder.HasKey(r => r.Id);            
+        {
+            builder.HasKey(c => c.Id);
+            builder.Property(c => c.Id)
+                   .HasMaxLength(36)
+                   .ValueGeneratedOnAdd();
             builder.Property(r => r.UserId).IsRequired();
             builder.Property(r => r.ReviewContent).IsRequired().HasMaxLength(300);
             builder.Property(r => r.StoreId).IsRequired();

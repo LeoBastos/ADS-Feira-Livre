@@ -1,5 +1,6 @@
 ﻿using ads.feira.domain.Entity.Categories;
 using ads.feira.domain.Interfaces.Categories;
+using ads.feira.domain.Paginated;
 using ads.feira.Infra.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,7 +22,7 @@ namespace ads.feira.Infra.Repositories.Categories
         /// </summary>
         /// <param name="Id"></param>
         /// <returns>Retorna uma LINQ Expression com um categoria</returns>
-        public async Task<Category> GetByIdAsync(int id)
+        public async Task<Category> GetByIdAsync(string id)
         {
             return await _context.Categories
                     .AsNoTracking()
@@ -33,13 +34,29 @@ namespace ads.feira.Infra.Repositories.Categories
         /// Retorna todas categorias
         /// </summary>      
         /// <returns>Retorna uma LINQ Expression com todas categorias</returns>
-        public async Task<IEnumerable<Category>> GetAllAsync()
+        public async Task<PagedResult<Category>> GetAllAsync(int pageNumber, int pageSize)
         {
-            return await _context.Categories               
+            var query = _context.Categories
                 .Where(p => p.IsActive == true)
                 .AsNoTracking()
-                .OrderBy(t => t.Name)
+                .OrderBy(t => t.Name);
+
+            var totalItems = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            var items = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+
+            return new PagedResult<Category>
+            {
+                Items = items,
+                TotalItems = totalItems,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalPages = totalPages
+            };
         }
 
         #endregion

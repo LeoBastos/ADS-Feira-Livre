@@ -6,9 +6,9 @@ namespace ads.feira.application.CQRS.Categories.Queries
 
     public class GetCategoryByIdQuery : IRequest<Category>
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
 
-        public GetCategoryByIdQuery(int id)
+        public GetCategoryByIdQuery(string id)
         {
             Id = id;
         }

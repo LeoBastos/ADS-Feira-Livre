@@ -1,6 +1,6 @@
-using ads.feira.api.ApiMappings;
 using ads.feira.api.Controllers;
 using ads.feira.api.Helpers.EmailSender;
+using ads.feira.api.Helpers.SeriLogs;
 using ads.feira.api.Helpers.Settings;
 using ads.feira.application.CQRS.Categories.Handlers.Queries;
 using ads.feira.application.CQRS.Cupons.Handlers.Queries;
@@ -10,6 +10,7 @@ using ads.feira.application.CQRS.Stores.Handlers.Queries;
 using ads.feira.application.Interfaces.Accounts;
 using ads.feira.application.Interfaces.Categories;
 using ads.feira.application.Interfaces.Cupons;
+using ads.feira.application.Interfaces.ProductPlanServices;
 using ads.feira.application.Interfaces.Products;
 using ads.feira.application.Interfaces.Reviews;
 using ads.feira.application.Interfaces.Stores;
@@ -17,6 +18,7 @@ using ads.feira.application.Mappings;
 using ads.feira.application.Services.Accounts;
 using ads.feira.application.Services.Categories;
 using ads.feira.application.Services.Cupons;
+using ads.feira.application.Services.ProductPlanServices;
 using ads.feira.application.Services.Products;
 using ads.feira.application.Services.Reviews;
 using ads.feira.application.Services.Stores;
@@ -31,6 +33,7 @@ using ads.feira.domain.Interfaces.Stores;
 using ads.feira.domain.Interfaces.UnitOfWorks;
 using ads.feira.domain.Seeds;
 using ads.feira.Infra.Context;
+using ads.feira.Infra.DataSeeds;
 using ads.feira.Infra.Repositories.Accounts;
 using ads.feira.Infra.Repositories.Categories;
 using ads.feira.Infra.Repositories.Cupons;
@@ -43,10 +46,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
-
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-
 using System.Reflection;
 using System.Text;
 
@@ -58,6 +59,9 @@ namespace ads.feira.api
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            //Serialog
+            builder.Host.SerilogConfiguration();
 
             builder.Services.AddHttpContextAccessor();
 
@@ -76,6 +80,16 @@ namespace ads.feira.api
                 options.Password.RequireUppercase = true;
                 options.Password.RequiredLength = 8;
             });
+
+            //S3BUCKET
+            //var awsOptions = builder.Configuration.GetAWSOptions();
+            //awsOptions.Region = RegionEndpoint.SAEast1; // Defina explicitamente a região
+            //builder.Services.AddDefaultAWSOptions(awsOptions);
+            //builder.Services.AddAWSService<IAmazonS3>();
+            //builder.Services.Configure<AWSConfiguration>(builder.Configuration.GetSection("AWSConfiguration"));
+            //builder.Services.AddScoped<S3Service>();
+
+
 
             // Configure Auth - Secrets            
             builder.Configuration.AddUserSecrets<Program>();
@@ -116,7 +130,7 @@ namespace ads.feira.api
             ));
 
             //Automapper
-            builder.Services.AddAutoMapper(typeof(ApplicationServiceMappings), typeof(ApiMapping));
+            builder.Services.AddAutoMapper(typeof(ApplicationServiceMappings));
 
             // MediatR
             builder.Services.AddMediatR(cfg =>
@@ -135,6 +149,8 @@ namespace ads.feira.api
             builder.Services.AddScoped<IProductServices, ProductServices>();
             builder.Services.AddScoped<IStoreServices, StoreServices>();
             builder.Services.AddScoped<IReviewServices, ReviewServices>();
+            builder.Services.AddScoped<IProductPlanService, ProductPlanService>();
+
 
             //Repositories
             builder.Services.AddScoped<IAccountRepository, AccountRepository>();
@@ -147,13 +163,16 @@ namespace ads.feira.api
             //UnitOfWork
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-            //Validators
+            ////Validators
             builder.Services.AddFluentValidation(
                 fv => fv.RegisterValidatorsFromAssemblyContaining<CategoryValidator>());
 
 
             //Roles
             builder.Services.AddScoped<ISeedUserRoleInitial, SeedUserRoleInitial>();
+            //Seed Data
+            builder.Services.AddScoped<ISeedDatabase, SeedDatabase>();
+
 
             builder.Services.AddControllers();
 
@@ -213,10 +232,24 @@ namespace ads.feira.api
                 });
             });
 
+            builder.Services.AddOutputCache();
+
+
+            builder.Services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.AddConsole();
+                loggingBuilder.AddDebug();
+            });
+
+
             var app = builder.Build();
 
             //Register Seeds
-            CriarPerfisUsuariosAsync(app);
+            //CriarPerfisUsuariosAsync(app);
+
+            //Teste
+            //PopulateDBAsync(app);
+
 
             // Configure o pipeline HTTP
             if (app.Environment.IsDevelopment())
@@ -227,14 +260,17 @@ namespace ads.feira.api
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
                 });
-            }
 
+            }
+            //app.UseExceptionHandler("/error");
             app.UseHttpsRedirection();
 
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
+
+            app.UseOutputCache();
 
             app.Run();
 
@@ -245,8 +281,24 @@ namespace ads.feira.api
                 using (var scope = scopedFactory?.CreateScope())
                 {
                     var service = scope?.ServiceProvider.GetService<ISeedUserRoleInitial>();
+
                     await service.SeedRolesAsync();
                     await service.SeedUsersAsync();
+                }
+            }
+
+            async Task PopulateDBAsync(WebApplication app)
+            {
+                using var scope = app.Services.CreateScope();
+                var service = scope.ServiceProvider.GetService<ISeedDatabase>();
+                if (service != null)
+                {
+                    await service.SeedDataDB(forceReseed: true);
+                }
+                else
+                {
+                    // Log um aviso ou lance uma exceção
+                    Console.WriteLine("ISeedDatabase service not found.");
                 }
             }
         }

@@ -2,6 +2,6 @@
 {
     public class StoreUpdateCommand : StoreCommand
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
     }
 }

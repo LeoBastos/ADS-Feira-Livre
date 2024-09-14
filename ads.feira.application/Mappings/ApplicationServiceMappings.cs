@@ -27,12 +27,7 @@ namespace ads.feira.application.Mappings
 
 
             #region Category
-            CreateMap<Category, CategoryDTO>()
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.Assets, opt => opt.MapFrom(src => src.Assets))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type != null ? src.Type.GetDisplayName() : string.Empty));
-
+            CreateMap<Category, CategoryDTO>().ReverseMap();                
             CreateMap<CreateCategoryDTO, Category>().ReverseMap();
             CreateMap<Category, UpdateCategoryDTO>().ReverseMap();
             CreateMap<CreateCategoryDTO, CategoryCreateCommand>().ReverseMap();
@@ -91,20 +86,13 @@ namespace ads.feira.application.Mappings
             #endregion
 
             #region Reviews
-            CreateMap<Review, ReviewDTO>().ReverseMap();
+            CreateMap<Review, ReviewDTO>()                
+                .ReverseMap();
             CreateMap<Review, CreateReviewDTO>().ReverseMap();
             CreateMap<Review, UpdateReviewDTO>().ReverseMap();
             CreateMap<CreateReviewDTO, ReviewCreateCommand>().ReverseMap();
             CreateMap<UpdateReviewDTO, ReviewUpdateCommand>().ReverseMap();
             #endregion
         }
-    }
-
-    public class EnumDisplayNameResolver : IValueResolver<Category, CategoryDTO, string>
-    {
-        public string Resolve(Category source, CategoryDTO destination, string destMember, ResolutionContext context)
-        {
-            return source.Type.GetDisplayName(); // Aqui, chamamos seu método de extensão
-        }
-    }
+    }    
 }

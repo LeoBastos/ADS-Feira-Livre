@@ -31,7 +31,7 @@ namespace ads.feira.application.CQRS.Categories.Handlers.Commands
                     throw new InvalidOperationException("User ID not found or invalid.");
                 }
 
-                var category = Category.Create(request.Id, request.Name, request.Description, request.Assets, request.Type);
+                var category = Category.Create(request.Id, request.Name, request.Description, request.Assets);
 
                 if (category == null)
                 {

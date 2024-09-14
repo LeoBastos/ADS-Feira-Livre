@@ -1,9 +1,9 @@
-﻿using ads.feira.api.Models.Reviews;
-using ads.feira.application.DTO.Reviews;
+﻿using ads.feira.application.DTO.Reviews;
 using ads.feira.application.Interfaces.Reviews;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace ads.feira.api.Controllers
 {
@@ -12,13 +12,11 @@ namespace ads.feira.api.Controllers
 
     public class ReviewController : ControllerBase
     {
-        private readonly IReviewServices _reviewServices;
-        private readonly IMapper _mapper;
+        private readonly IReviewServices _reviewServices;        
 
-        public ReviewController(IReviewServices reviewServices, IMapper mapper)
+        public ReviewController(IReviewServices reviewServices)
         {
-            _reviewServices = reviewServices;
-            _mapper = mapper;
+            _reviewServices = reviewServices;           
         }
 
         /// <summary>
@@ -26,13 +24,14 @@ namespace ads.feira.api.Controllers
         /// </summary>       
         [Authorize]
         [HttpGet]
-        [ProducesResponseType(typeof(ReviewViewModel), StatusCodes.Status200OK)]
+        [OutputCache(Duration = 15)]
+        [ProducesResponseType(typeof(ReviewDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<ReviewViewModel>>> GetAllCategories()
+        public async Task<ActionResult<IEnumerable<ReviewDTO>>> GetAllReviews([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20)
         {
-            var categories = await _reviewServices.GetAll();
-            return Ok(_mapper.Map<IEnumerable<ReviewDTO>>(categories));
+            var categories = await _reviewServices.GetAll(pageNumber, pageSize);
+            return Ok(categories);
         }
 
         /// <summary>
@@ -41,16 +40,16 @@ namespace ads.feira.api.Controllers
         /// <param name="Id"></param>
         [Authorize]
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(ReviewViewModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ReviewDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ReviewViewModel>> GetCategoryById(int id)
+        public async Task<ActionResult<ReviewDTO>> GetReviewById(string id)
         {
             var category = await _reviewServices.GetById(id);
             if (category == null)
                 return NotFound();
 
-            return Ok(_mapper.Map<ReviewDTO>(category));
+            return Ok(category);
         }
 
         /// <summary>
@@ -58,16 +57,15 @@ namespace ads.feira.api.Controllers
         /// </summary> 
         [Authorize(Roles = "Admin, Customer")]
         [HttpPost]
-        [ProducesResponseType(typeof(CreateReviewViewModel), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(CreateReviewDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<CreateReviewViewModel>> CreateCategory([FromForm] CreateReviewViewModel createViewModel)
+        public async Task<ActionResult<CreateReviewDTO>> CreateReview([FromForm] CreateReviewDTO createReviewDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var reviewDTO = _mapper.Map<CreateReviewDTO>(createViewModel);
-            await _reviewServices.Create(reviewDTO);
+            await _reviewServices.Create(createReviewDto);
 
 
             return Ok("Review cadastrada.");
@@ -78,11 +76,11 @@ namespace ads.feira.api.Controllers
         /// </summary> 
         [Authorize(Roles = "Admin, Customer")]
         [HttpPut("{id}")]
-        [ProducesResponseType(typeof(UpdateReviewViewModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(UpdateReviewDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UpdateCategory(int id, [FromForm] UpdateReviewViewModel updateViewModel)
+        public async Task<IActionResult> UpdateReview(string id, [FromForm] UpdateReviewDTO updateReviewDto)
         {
             if (id == null)
                 return BadRequest("ID mismatch");
@@ -90,8 +88,8 @@ namespace ads.feira.api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var reviewDTO = _mapper.Map<UpdateReviewDTO>(updateViewModel);
-            await _reviewServices.Update(reviewDTO);
+
+            await _reviewServices.Update(updateReviewDto);
 
             return Ok("Categoria atualizada");
         }
@@ -102,7 +100,7 @@ namespace ads.feira.api.Controllers
         /// <param name="Id"></param>
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> RemoveCategory(int id)
+        public async Task<IActionResult> RemoveReview(string id)
         {
             await _reviewServices.Remove(id);
             return NoContent();

@@ -2,7 +2,7 @@
 {
     public class AddStoreToCuponViewModel
     {
-        public int CuponId { get; set; }
-        public int StoreId { get; set; }
+        public string CuponId { get; set; }
+        public string StoreId { get; set; }
     }
 }

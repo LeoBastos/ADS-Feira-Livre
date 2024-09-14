@@ -1,19 +1,19 @@
 ﻿using ads.feira.application.DTO.Cupons;
-using System.Linq.Expressions;
+using ads.feira.domain.Paginated;
 
 namespace ads.feira.application.Interfaces.Cupons
 {
     public interface ICuponService
     {
-        Task<IEnumerable<CuponDTO>> GetAll();
-        Task<CuponDTO> GetById(int id);      
+        Task<PagedResult<CuponDTO>> GetAll(int pageNumber, int pageSize);
+        Task<CuponDTO> GetById(string id);
 
-        Task AddProductToCupon(int cuponId, int productId);
-        Task RemoveProductFromCupon(int cuponId, int productId);
-        Task AddStoreToCupon(int cuponId, int storeId);
-        Task RemoveStoreFromCupon(int cuponId, int storeId);
+        Task AddProductToCupon(string cuponId, string productId);
+        Task RemoveProductFromCupon(string cuponId, string productId);
+        Task AddStoreToCupon(string cuponId, string storeId);
+        Task RemoveStoreFromCupon(string cuponId, string storeId);
         Task Create(CreateCuponDTO cuponDTO);
         Task Update(UpdateCuponDTO cuponDTO);
-        Task Remove(int id);
+        Task Remove(string id);
     }
 }

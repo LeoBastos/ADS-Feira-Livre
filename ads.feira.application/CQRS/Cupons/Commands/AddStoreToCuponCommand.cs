@@ -5,10 +5,10 @@ namespace ads.feira.application.CQRS.Cupons.Commands
 {
     public class AddStoreToCuponCommand : IRequest<Cupon>
     {
-        public int CuponId { get; set; }
-        public int StoreId { get; set; }
+        public string CuponId { get; set; }
+        public string StoreId { get; set; }
 
-        public AddStoreToCuponCommand(int cuponId, int storeId)
+        public AddStoreToCuponCommand(string cuponId, string storeId)
         {
             CuponId = cuponId;
             StoreId = storeId;

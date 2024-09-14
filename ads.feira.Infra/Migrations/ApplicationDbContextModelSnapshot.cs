@@ -27,8 +27,8 @@ namespace ads.feira.Infra.Migrations
                     b.Property<string>("AccountId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("RedeemedCouponsId")
-                        .HasColumnType("int");
+                    b.Property<string>("RedeemedCouponsId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("AccountId", "RedeemedCouponsId");
 
@@ -42,8 +42,8 @@ namespace ads.feira.Infra.Migrations
                     b.Property<string>("AccountId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("FavoriteStoresId")
-                        .HasColumnType("int");
+                    b.Property<string>("FavoriteStoresId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("AccountId", "FavoriteStoresId");
 
@@ -54,11 +54,11 @@ namespace ads.feira.Infra.Migrations
 
             modelBuilder.Entity("CuponProduct", b =>
                 {
-                    b.Property<int>("AvailableCouponsId")
-                        .HasColumnType("int");
+                    b.Property<string>("AvailableCouponsId")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("ProductsId")
-                        .HasColumnType("int");
+                    b.Property<string>("ProductsId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("AvailableCouponsId", "ProductsId");
 
@@ -69,11 +69,11 @@ namespace ads.feira.Infra.Migrations
 
             modelBuilder.Entity("CuponStore", b =>
                 {
-                    b.Property<int>("AvailableCuponsId")
-                        .HasColumnType("int");
+                    b.Property<string>("AvailableCuponsId")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("StoresId")
-                        .HasColumnType("int");
+                    b.Property<string>("StoresId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("AvailableCuponsId", "StoresId");
 
@@ -274,6 +274,9 @@ namespace ads.feira.Infra.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("StoreOwnerPlan")
+                        .HasColumnType("int");
+
                     b.Property<bool>("TosAccept")
                         .HasColumnType("bit");
 
@@ -303,11 +306,8 @@ namespace ads.feira.Infra.Migrations
 
             modelBuilder.Entity("ads.feira.domain.Entity.Categories.Category", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Assets")
                         .IsRequired()
@@ -327,10 +327,6 @@ namespace ads.feira.Infra.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("_Deleted")
                         .HasColumnType("bit");
 
@@ -342,16 +338,13 @@ namespace ads.feira.Infra.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("ads.feira.domain.Entity.Cupons.Cupon", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -391,24 +384,22 @@ namespace ads.feira.Infra.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Cupons", (string)null);
+                    b.ToTable("Cupons");
                 });
 
             modelBuilder.Entity("ads.feira.domain.Entity.Products.Product", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Assets")
                         .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
+                    b.Property<string>("CategoryId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -429,8 +420,9 @@ namespace ads.feira.Infra.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("StoreId")
-                        .HasColumnType("int");
+                    b.Property<string>("StoreId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("_Deleted")
                         .HasColumnType("bit");
@@ -447,16 +439,13 @@ namespace ads.feira.Infra.Migrations
 
                     b.HasIndex("StoreId");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("ads.feira.domain.Entity.Reviews.Review", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -469,8 +458,9 @@ namespace ads.feira.Infra.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
 
-                    b.Property<int>("StoreId")
-                        .HasColumnType("int");
+                    b.Property<string>("StoreId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -491,24 +481,22 @@ namespace ads.feira.Infra.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reviews", (string)null);
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("ads.feira.domain.Entity.Stores.Store", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Assets")
                         .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
+                    b.Property<string>("CategoryId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -552,7 +540,7 @@ namespace ads.feira.Infra.Migrations
 
                     b.HasIndex("StoreOwnerId");
 
-                    b.ToTable("Stores", (string)null);
+                    b.ToTable("Stores");
                 });
 
             modelBuilder.Entity("AccountCupon", b =>

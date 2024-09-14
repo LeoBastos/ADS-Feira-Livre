@@ -5,9 +5,9 @@ namespace ads.feira.application.CQRS.Cupons.Queries
 {
     public class GetCuponByIdQuery : IRequest<Cupon>
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
 
-        public GetCuponByIdQuery(int id)
+        public GetCuponByIdQuery(string id)
         {
             Id = id;
         }

@@ -1,8 +1,9 @@
-﻿using ads.feira.domain.Entity.Cupons;
+﻿using ads.feira.domain.Entity.Categories;
+using ads.feira.domain.Entity.Cupons;
 using ads.feira.domain.Interfaces.Cupons;
+using ads.feira.domain.Paginated;
 using ads.feira.Infra.Context;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace ads.feira.Infra.Repositories.Cupons
 {
@@ -21,25 +22,41 @@ namespace ads.feira.Infra.Repositories.Cupons
         /// </summary>
         /// <param name="Id"></param>
         /// <returns>Retorna uma LINQ Expression com um cupon</returns>
-        public async Task<Cupon> GetByIdAsync(int id)
+        public async Task<Cupon> GetByIdAsync(string id)
         {
             return await _context.Cupons
                     .Where(p => p.IsActive == true)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(t => t.Id == id);
-        }      
+        }
 
         /// <summary>
         /// Retorna todos os cupons
         /// </summary>      
         /// <returns>Retorna uma LINQ Expression com todos os cupons</returns>
-        public async Task<IEnumerable<Cupon>> GetAllAsync()
+        public async Task<PagedResult<Cupon>> GetAllAsync(int pageNumber, int pageSize)
         {
-            return await _context.Cupons
-                .AsNoTracking()
+            var query = _context.Cupons
                 .Where(p => p.IsActive == true)
-                .OrderBy(t => t.Name)
+                .AsNoTracking()
+                .OrderBy(t => t.Name);
+
+            var totalItems = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            var items = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+
+            return new PagedResult<Cupon>
+            {
+                Items = items,
+                TotalItems = totalItems,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalPages = totalPages
+            };
         }
         #endregion
 

@@ -1,9 +1,9 @@
-﻿using ads.feira.domain.Entity.Products;
-using ads.feira.domain.Entity.Stores;
+﻿using ads.feira.domain.Entity.Cupons;
+using ads.feira.domain.Entity.Products;
 using ads.feira.domain.Interfaces.Products;
+using ads.feira.domain.Paginated;
 using ads.feira.Infra.Context;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace ads.feira.Infra.Repositories.Products
 {
@@ -14,6 +14,7 @@ namespace ads.feira.Infra.Repositories.Products
         public ProductRepository(ApplicationDbContext context)
         {
             _context = context;
+
         }
 
         #region Queries
@@ -22,7 +23,7 @@ namespace ads.feira.Infra.Repositories.Products
         /// </summary>
         /// <param name="Id"></param>
         /// <returns>Retorna uma LINQ Expression com um Produto</returns>
-        public async Task<Product> GetByIdAsync(int id)
+        public async Task<Product> GetByIdAsync(string id)
         {
             return await _context.Products
                     .AsNoTracking()
@@ -32,28 +33,55 @@ namespace ads.feira.Infra.Repositories.Products
                     .FirstOrDefaultAsync();
         }
 
-       
+
         /// <summary>
         /// Retorna todos os Produtos
         /// </summary>      
         /// <returns>Retorna uma LINQ Expression com todos os produtos</returns>
-        public async Task<IEnumerable<Product>> GetAllAsync()
+        public async Task<PagedResult<Product>> GetAllAsync(int pageNumber, int pageSize)
         {
-            return await _context.Products
+            var query = _context.Products
                 .AsNoTracking()
                 .OrderBy(t => t.Name)
                 .Where(p => p.IsActive == true)
                 .Include(p => p.Store)
-                .Include(p => p.Category)
+                .Include(p => p.Category);
+
+            var totalItems = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            var items = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+
+            return new PagedResult<Product>
+            {
+                Items = items,
+                TotalItems = totalItems,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalPages = totalPages
+            };
         }
+
+        //public async Task<IEnumerable<Product>> GetAllAsync()
+        //{
+        //    return await _context.Products
+        //        .AsNoTracking()
+        //        .OrderBy(t => t.Name)
+        //        .Where(p => p.IsActive == true)
+        //        .Include(p => p.Store)
+        //        .Include(p => p.Category)
+        //        .ToListAsync();
+        //}
 
         /// <summary>
         /// Retorna todos os Produtos de uma Loja
         /// </summary>      
         /// <param name="storeId"></param>
         /// <returns>Retorna uma LINQ Expression com todos os produtos de uma Loja</returns>
-        public async Task<IEnumerable<Product>> GetProductsForStoreIdAsync(int storeId)
+        public async Task<IEnumerable<Product>> GetProductsForStoreIdAsync(string storeId)
         {
             return await _context.Stores
                 .AsNoTracking()
@@ -61,6 +89,19 @@ namespace ads.feira.Infra.Repositories.Products
                 .SelectMany(s => s.Products)
                 .Include(p => p.Category)
                 .ToListAsync();
+        }
+
+        /// <summary>
+        /// Retorna o total de Produtos por Dono de Loja
+        /// </summary>      
+        /// <param name="storeId"></param>
+        /// <returns>Retorna uma LINQ Expression com o total de produto de uma Store Owner</returns>
+        public async Task<int> GetProductCountByStoreOwnerAsync(string storeId)
+        {
+            return await _context.Products
+                .AsNoTracking()
+                .Where(p => p.Store.StoreOwnerId == storeId && p.IsActive)
+                .CountAsync();
         }
 
         #endregion

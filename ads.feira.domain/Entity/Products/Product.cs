@@ -10,13 +10,13 @@ namespace ads.feira.domain.Entity.Products
     {
         private Product() { }
 
-        public Product(int id, int storeId, int categoryId, string name, string description, string assets, decimal price, decimal? discountedPrice)
+        public Product(string id, string storeId, string categoryId, string name, string description, string assets, decimal price, decimal? discountedPrice)
         {
             ValidateDomain(id, storeId, categoryId, name, description, assets, price, discountedPrice);
         }
 
-        public int StoreId { get; private set; }
-        public int CategoryId { get; private set; }
+        public string StoreId { get; private set; }
+        public string CategoryId { get; private set; }
         public string Name { get; private set; }
         public string Description { get; private set; }
         public string Assets { get; private set; }
@@ -28,12 +28,12 @@ namespace ads.feira.domain.Entity.Products
         public ICollection<Cupon> AvailableCoupons { get; set; } = new List<Cupon>();
 
 
-        public static Product Create(int id, int storeId, int categoryId, string name, string description, string assets, decimal price, decimal? discountedPrice)
+        public static Product Create(string id, string storeId, string categoryId, string name, string description, string assets, decimal price, decimal? discountedPrice)
         {
             return new Product(id, storeId, categoryId, name, description, assets, price, discountedPrice);
         }
 
-        public void Update(int id, int storeId, int categoryId, string name, string description, string assets, decimal price, decimal? discountedPrice)
+        public void Update(string id, string storeId, string categoryId, string name, string description, string assets, decimal price, decimal? discountedPrice)
         {
             ValidateDomain(id, storeId, categoryId, name, description, assets, price, discountedPrice);
         }
@@ -78,13 +78,8 @@ namespace ads.feira.domain.Entity.Products
             DiscountedPrice = Math.Max(discountedPrice, 0);
         }
 
-        private void ValidateDomain(int id, int storeId, int categoryId, string name, string description, string assets, decimal price, decimal? discountedPrice)
-        {
-            DomainExceptionValidation.When(id < 0, "Id inválido.");
-            DomainExceptionValidation.When(storeId < 0, "Id inválido.");
-
-            DomainExceptionValidation.When(categoryId < 0, "Id inválido.");
-
+        private void ValidateDomain(string id, string storeId, string categoryId, string name, string description, string assets, decimal price, decimal? discountedPrice)
+        {           
             DomainExceptionValidation.When(string.IsNullOrEmpty(name), "Nome não pode ser nulo.");
             DomainExceptionValidation.When(name.Length < 3, "Minimo de 3 caracteres.");
 

@@ -7,8 +7,8 @@ namespace ads.feira.application.CQRS.Products.Commands
     {
         public class AddCuponToProductCommand : IRequest<Product>
         {
-            public int ProductId { get; set; }
-            public int CuponId { get; set; }
+            public string ProductId { get; set; }
+            public string CuponId { get; set; }
         }
     }
 }

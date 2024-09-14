@@ -19,11 +19,11 @@ namespace ads.feira.Infra.Context
         public DbSet<Cupon> Cupons { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Review> Reviews { get; set; }
-        public DbSet<Store> Stores { get; set; }        
+        public DbSet<Store> Stores { get; set; }    
+        public DbSet<Account> Accounts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-
             base.OnModelCreating(builder);
             builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
         }

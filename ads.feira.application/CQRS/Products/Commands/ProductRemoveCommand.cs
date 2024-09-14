@@ -5,9 +5,9 @@ namespace ads.feira.application.CQRS.Products.Commands
 {
     public class ProductRemoveCommand : IRequest<Product>
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
 
-        public ProductRemoveCommand(int id)
+        public ProductRemoveCommand(string id)
         {
             Id = id;
         }

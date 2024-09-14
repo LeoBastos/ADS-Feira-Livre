@@ -5,9 +5,9 @@ namespace ads.feira.application.CQRS.Products.Queries
 {
     public class GetProdructByIdQuery : IRequest<Product>
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
 
-        public GetProdructByIdQuery(int id)
+        public GetProdructByIdQuery(string id)
         {
             Id = id;
         }

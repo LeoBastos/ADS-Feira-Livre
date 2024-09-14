@@ -5,9 +5,9 @@ namespace ads.feira.application.CQRS.Reviews.Queries
 {
     public class GetReviewByIdQuery : IRequest<Review>
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
 
-        public GetReviewByIdQuery(int id)
+        public GetReviewByIdQuery(string id)
         {
             Id = id;
         }

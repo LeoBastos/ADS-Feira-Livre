@@ -5,13 +5,13 @@ namespace ads.feira.application.DTO.Products
 {
     public class CreateProductDTO
     {
-        public int Id { get; set; }
+        public string? Id { get; set; }
 
         [DisplayName("Store Id")]
-        public int StoreId { get; set; }
+        public string StoreId { get; set; }       
 
         [DisplayName("Category Id")]
-        public int CategoryId { get; set; }
+        public string CategoryId { get; set; }
 
         [DisplayName("Nome")]
         public string Name { get; set; }
@@ -20,7 +20,8 @@ namespace ads.feira.application.DTO.Products
         public string Description { get; set; }
 
         [DisplayName("Imagem")]
-        public string? Assets { get; set; }
+        public IFormFile? Assets { get; set; }
+        public string? AssetsPath { get; set; }
 
         [DisplayName("Preço")]
         public decimal Price { get; set; }

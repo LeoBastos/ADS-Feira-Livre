@@ -5,7 +5,7 @@ namespace ads.feira.application.CQRS.Categories.Commands
 {
     public class RemoveProductFromCategoryCommand : IRequest<Category>
     {
-        public int CategoryId { get; set; }
-        public int ProductId { get; set; }
+        public string CategoryId { get; set; }
+        public string ProductId { get; set; }
     }
 }

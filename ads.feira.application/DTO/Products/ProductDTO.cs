@@ -7,7 +7,7 @@
             
         }
 
-        public int Id { get; set; }
+        public string Id { get; set; }
         public string Store { get; set; }
         public string Category { get; set; }
         public string Name { get; set; }

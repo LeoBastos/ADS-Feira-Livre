@@ -12,12 +12,7 @@ namespace ads.feira.application.Validators.Categories
                 .NotEmpty()
                 .MinimumLength(3)
                 .MaximumLength(150)
-                .WithMessage("Nome deve ser preenchido.");
-
-            RuleFor(c => c.Type)
-                .NotNull()
-                .NotEmpty()
-                .WithMessage("Tipo deve ser preenchido.");
+                .WithMessage("Nome deve ser preenchido.");         
 
             RuleFor(c => c.Description)
                .NotNull()
@@ -25,11 +20,7 @@ namespace ads.feira.application.Validators.Categories
                .MinimumLength(3)
                .MaximumLength(250)
                .WithMessage("Descrição deve ser preenchido");
-
-            RuleFor(c => c.Assets)
-               .NotNull()
-               .NotEmpty()
-               .WithMessage("Adicione a imagem");
+          
         }
     }
 }

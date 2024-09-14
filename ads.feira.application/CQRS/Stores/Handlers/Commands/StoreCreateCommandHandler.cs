@@ -31,6 +31,14 @@ namespace ads.feira.application.CQRS.Stores.Handlers.Commands
                     throw new InvalidOperationException("User ID not found or invalid.");
                 }
 
+
+                if (request.StoreOwnerId.Equals(userId.ToString()))
+                {
+                    throw new InvalidOperationException("Only one Store for Owner.");
+                }
+
+
+
                 var store = Store.Create(request.Id, request.StoreOwnerId, request.Name, request.CategoryId,
                                         request.Description, request.Assets, request.StoreNumber, request.HasDebt, request.Locations);
 
@@ -38,6 +46,7 @@ namespace ads.feira.application.CQRS.Stores.Handlers.Commands
                 {
                     throw new InvalidOperationException("Failed to create Store.");
                 }
+
                 if (store.HasDebt)
                     throw new InvalidOperationException("Has Debt.");
 

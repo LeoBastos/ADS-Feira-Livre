@@ -7,8 +7,11 @@ namespace ads.feira.Infra.Mappings.Products
     public class ProductMappings : IEntityTypeConfiguration<Product>
     {
         public void Configure(EntityTypeBuilder<Product> builder)
-        {  
-            builder.HasKey(p => p.Id);            
+        {
+            builder.HasKey(c => c.Id);
+            builder.Property(c => c.Id)
+                   .HasMaxLength(36)
+                   .ValueGeneratedOnAdd();
             builder.Property(p => p.StoreId).IsRequired();
             builder.Property(p => p.CategoryId).IsRequired();
             builder.Property(p => p.Name).IsRequired().HasMaxLength(100);

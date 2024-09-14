@@ -9,7 +9,7 @@ namespace ads.feira.domain.Entity.Cupons
     {
         private Cupon() { }
 
-        public Cupon(int id, string name, string code, string description, DateTime expiration, decimal discount, DiscountTypeEnum discountType)
+        public Cupon(string id, string name, string code, string description, DateTime expiration, decimal discount, DiscountTypeEnum discountType)
         {
             ValidateDomain(id, name, code, description, expiration, discount, discountType);
         }
@@ -26,12 +26,12 @@ namespace ads.feira.domain.Entity.Cupons
         public ICollection<Store> Stores { get; set; } = new List<Store>();
 
 
-        public static Cupon Create(int id, string name, string code, string description, DateTime expiration, decimal discount, DiscountTypeEnum discountType)
+        public static Cupon Create(string id, string name, string code, string description, DateTime expiration, decimal discount, DiscountTypeEnum discountType)
         {
             return new Cupon(id, name, code, description, expiration, discount, discountType);
         }
 
-        public void Update(int id, string name, string code, string description, DateTime expiration, decimal discount, DiscountTypeEnum discountType)
+        public void Update(string id, string name, string code, string description, DateTime expiration, decimal discount, DiscountTypeEnum discountType)
         {
             ValidateDomain(id, name, code, description, expiration, discount, discountType);
         }
@@ -70,11 +70,8 @@ namespace ads.feira.domain.Entity.Cupons
             return DateTime.UtcNow <= Expiration;
         }
 
-        private void ValidateDomain(int id, string name, string code, string description, DateTime expiration, decimal discount, DiscountTypeEnum discountType)
-        {
-            DomainExceptionValidation.When(id < 0, "Id inválido.");
-
-
+        private void ValidateDomain(string id, string name, string code, string description, DateTime expiration, decimal discount, DiscountTypeEnum discountType)
+        {         
             DomainExceptionValidation.When(string.IsNullOrEmpty(name), "Nome não pode ser nulo.");
             DomainExceptionValidation.When(name.Length < 3, "Minimo de 3 caracteres.");
 

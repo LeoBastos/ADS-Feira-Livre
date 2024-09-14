@@ -9,7 +9,7 @@ namespace ads.feira.domain.Entity.Accounts
     {
         public Account() { }
 
-        public Account(string? name, string? assets, bool tosAccept, bool privacyAccept, bool isActive, UserType userType)
+        public Account(string? name, string? assets, bool tosAccept, bool privacyAccept, bool isActive, UserType userType, StoreOwnerPlan storeOwnerPlan)
         {
             Name = name;
             Assets = assets;
@@ -17,6 +17,7 @@ namespace ads.feira.domain.Entity.Accounts
             PrivacyAccept = privacyAccept;
             IsActive = isActive;           
             UserType = userType;
+            StoreOwnerPlan = storeOwnerPlan;
         }
 
         public string? Name { get; set; }
@@ -25,6 +26,7 @@ namespace ads.feira.domain.Entity.Accounts
         public bool PrivacyAccept { get; set; } = true;
         public bool IsActive { get; set; } = true;       
         public UserType UserType { get; set; }
+        public StoreOwnerPlan StoreOwnerPlan { get; set; } = StoreOwnerPlan.Bronze;
 
         public ICollection<Store> Stores { get; private set; } = new List<Store>();
         public ICollection<Review> Reviews { get; private set; } = new List<Review>();
@@ -39,6 +41,14 @@ namespace ads.feira.domain.Entity.Accounts
         public void UpdateAvatar(string assets)
         {
             Assets = assets;
+        }
+
+        public void UpgradePlan(StoreOwnerPlan newPlan)
+        {
+            if (UserType == UserType.StoreOwner && newPlan > StoreOwnerPlan)
+            {
+                StoreOwnerPlan = newPlan;
+            }
         }
 
         public void Remove()
@@ -110,5 +120,13 @@ namespace ads.feira.domain.Entity.Accounts
         Administrator,
         StoreOwner,
         Customer
+    }
+
+    public enum StoreOwnerPlan
+    {
+        Bronze,
+        Silver,
+        Gold,
+        Platinum
     }
 }

@@ -1,10 +1,10 @@
-﻿using ads.feira.api.Models.Categories;
-using ads.feira.api.Models.Cupons;
+﻿using ads.feira.api.Models.Cupons;
 using ads.feira.application.DTO.Cupons;
 using ads.feira.application.Interfaces.Cupons;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq.Expressions;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace ads.feira.api.Controllers
 {
@@ -12,22 +12,24 @@ namespace ads.feira.api.Controllers
     [ApiController]
     public class CuponController : ControllerBase
     {
-        private readonly ICuponService _cuponService;
-        private readonly IMapper _mapper;
+        private readonly ICuponService _cuponService;        
 
-        public CuponController(ICuponService cuponService, IMapper mapper)
+        public CuponController(ICuponService cuponService)
         {
-            _cuponService = cuponService;
-            _mapper = mapper;
+            _cuponService = cuponService;           
         }
 
         /// <summary>
         /// - Retorna todos os cupons
         /// </summary>    
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CuponDTO>>> GetAllCupons()
+        [OutputCache(Duration = 15)]
+        [ProducesResponseType(typeof(CuponDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IEnumerable<CuponDTO>>> GetAllCupons([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20)
         {
-            var cupons = await _cuponService.GetAll();
+            var cupons = await _cuponService.GetAll(pageNumber, pageSize);
             if (cupons == null)
             {
                 return NotFound("Cupons not found");
@@ -41,7 +43,10 @@ namespace ads.feira.api.Controllers
         /// </summary>
         /// <param name="Id"></param>
         [HttpGet("{id}")]
-        public async Task<ActionResult<CuponDTO>> GetCuponById(int id)
+        [ProducesResponseType(typeof(CuponDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<CuponDTO>> GetCuponById(string id)
         {
             var cupon = await _cuponService.GetById(id);
             if (cupon == null)
@@ -55,31 +60,38 @@ namespace ads.feira.api.Controllers
         /// - Cria um Cupon
         /// </summary> 
         [HttpPost]
-        public async Task<ActionResult<CreateCuponViewModel>> Create([FromBody] CreateCuponViewModel cuponViewModel)
+        [Authorize(Roles = "Admin, StoreOwner")]
+        [ProducesResponseType(typeof(CreateCuponDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<CreateCuponDTO>> Create([FromBody] CreateCuponDTO cuponDTO)
         {
-            if (cuponViewModel == null)
+            if (cuponDTO == null)
                 return BadRequest("Invalid Data");
 
-            var cuponDto = _mapper.Map<CreateCuponDTO>(cuponViewModel);
-            await _cuponService.Create(cuponDto);
+            await _cuponService.Create(cuponDTO);
 
             return Ok("Cupon cadastrado.");
         }
 
         /// <summary>
         /// - Atualiza um Cupon
-        /// </summary> 
-        [HttpPut]
+        /// </summary>   
+        [Authorize(Roles = "Admin, StoreOwner")]
         [HttpPut("{id}")]
-        public async Task<ActionResult<UpdateCuponViewModel>> Update([FromBody] UpdateCuponViewModel cuponViewModel)
+        [ProducesResponseType(typeof(UpdateCuponDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<UpdateCuponDTO>> Update([FromBody] UpdateCuponDTO cuponDTO)
         {
-            if (cuponViewModel == null)
+            if (cuponDTO == null)
                 return BadRequest("Invalid Data");
 
-            var cuponDto = _mapper.Map<UpdateCuponDTO>(cuponViewModel);
-            await _cuponService.Update(cuponDto);
 
-            return Ok(cuponDto);
+            await _cuponService.Update(cuponDTO);
+
+            return Ok(cuponDTO);
         }
 
 
@@ -87,8 +99,9 @@ namespace ads.feira.api.Controllers
         /// - Remove um Cupon
         /// </summary> 
         /// <param name="Id"></param>
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult> Delete(int id)
+        public async Task<ActionResult> Delete(string id)
         {
             var cupon = await _cuponService.GetById(id);
             if (cupon == null)
@@ -112,6 +125,7 @@ namespace ads.feira.api.Controllers
             await _cuponService.AddProductToCupon(model.CuponId, model.ProductId);
             return Ok();
         }
+
         /// <summary>
         /// - Not Implemment Yeat
         /// </summary> 
@@ -136,7 +150,7 @@ namespace ads.feira.api.Controllers
         /// - Not Implemment Yeat
         /// </summary> 
         /// <param name="Id"></param>
-        [HttpPost("removeStore")]       
+        [HttpPost("removeStore")]
         public async Task<ActionResult> RemoveStoreFromCupon([FromForm] RemoveStoreFromCuponViewModel model)
         {
             await _cuponService.RemoveStoreFromCupon(model.CuponId, model.StoreId);

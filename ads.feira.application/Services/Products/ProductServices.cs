@@ -1,9 +1,13 @@
-﻿using ads.feira.application.CQRS.Products.Commands;
+﻿using ads.feira.application.CQRS.Categories.Queries;
+using ads.feira.application.CQRS.Products.Commands;
 using ads.feira.application.CQRS.Products.Commands.ads.feira.application.CQRS.Categories.Commands;
 using ads.feira.application.CQRS.Products.Queries;
+using ads.feira.application.CQRS.Stores.Commands;
+using ads.feira.application.DTO.Categories;
 using ads.feira.application.DTO.Products;
 using ads.feira.application.Interfaces.Products;
 using ads.feira.domain.Interfaces.Products;
+using ads.feira.domain.Paginated;
 using AutoMapper;
 using MediatR;
 
@@ -28,7 +32,7 @@ namespace ads.feira.application.Services.Products
         /// </summary>
         /// <param name="Id"></param>
         /// <returns>Retorna uma LINQ Expression com um produto</returns>
-        public async Task<ProductDTO> GetById(int id)
+        public async Task<ProductDTO> GetById(string id)
         {
             var productQuery = new GetProdructByIdQuery(id);
             var result = await _mediator.Send(productQuery);
@@ -43,11 +47,29 @@ namespace ads.feira.application.Services.Products
         /// Retorna todos produtos
         /// </summary>      
         /// <returns>Retorna uma LINQ Expression com todos produtos</returns>
-        public async Task<IEnumerable<ProductDTO>> GetAll()
+        public async Task<PagedResult<ProductDTO>> GetAll(int pageNumber, int pageSize)
         {
-            var productQuery = new GetAllProductQuery();
-            var result = await _mediator.Send(productQuery);
-            return _mapper.Map<IEnumerable<ProductDTO>>(result);
+            var query = new GetAllProductQuery
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+            var result = await _mediator.Send(query);
+
+            var dtos = _mapper.Map<IEnumerable<ProductDTO>>(result.Items);
+
+            return new PagedResult<ProductDTO>
+            {
+                Items = dtos,
+                TotalItems = result.TotalItems,
+                PageNumber = result.PageNumber,
+                PageSize = result.PageSize,
+                TotalPages = result.TotalPages
+            };
+
+            //var productQuery = new GetAllProductQuery();
+            //var result = await _mediator.Send(productQuery);
+            //return _mapper.Map<IEnumerable<ProductDTO>>(result);
         }
 
 
@@ -56,7 +78,7 @@ namespace ads.feira.application.Services.Products
         /// </summary>
         /// <param name="storeId"></param>
         /// <returns>Retorna uma LINQ Expression com um produto</returns>
-        public async Task<IEnumerable<ProductStoreDTO>> GetProductsForStoreId(int storeId)
+        public async Task<IEnumerable<ProductStoreDTO>> GetProductsForStoreId(string storeId)
         {
             var productForStoreIdQuery = new GetProductForStoreIdQuery(storeId);
             var result = await _mediator.Send(productForStoreIdQuery);
@@ -81,6 +103,7 @@ namespace ads.feira.application.Services.Products
             {
                 throw new Exception("Entity could not be created.");
             }
+            productCreateCommand.Assets = productCreateCommand.AssetsPath;
 
             var createdProduct = await _mediator.Send(productCreateCommand);
 
@@ -106,7 +129,7 @@ namespace ads.feira.application.Services.Products
         /// Remove a Entity
         /// </summary>
         /// <param name="entity">Produto</param>
-        public async Task Remove(int id)
+        public async Task Remove(string id)
         {
             var productRemoveCommand = new ProductRemoveCommand(id);
             await _mediator.Send(productRemoveCommand);
@@ -116,7 +139,7 @@ namespace ads.feira.application.Services.Products
 
 
         //Métodos abaixo, Rever para melhorar e implementar futuramente
-        public async Task AddCuponToProduct(int cuponId, int productId)
+        public async Task AddCuponToProduct(string cuponId, string productId)
         {
             var addCuponCommand = new AddCuponToProductCommand
             {
@@ -126,7 +149,7 @@ namespace ads.feira.application.Services.Products
             await _mediator.Send(addCuponCommand);
         }
 
-        public async Task RemoveCuponFromProduct(int cuponId, int productId)
+        public async Task RemoveCuponFromProduct(string cuponId, string productId)
         {
             var removeCuponCommand = new RemoveCuponFromProductCommand
             {

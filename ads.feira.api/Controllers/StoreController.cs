@@ -1,9 +1,9 @@
-﻿using ads.feira.api.Models.Stores;
+﻿using ads.feira.api.Helpers.Images;
 using ads.feira.application.DTO.Stores;
 using ads.feira.application.Interfaces.Stores;
-using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using System.Security.Claims;
 
 namespace ads.feira.api.Controllers
@@ -13,47 +13,48 @@ namespace ads.feira.api.Controllers
     public class StoreController : ControllerBase
     {
         private readonly IStoreServices _storeServices;
-        private readonly IMapper _mapper;
+        //private readonly S3Service _s3Service;
 
-        public StoreController(IStoreServices storeServices, IMapper mapper)
+        public StoreController(IStoreServices storeServices/*, S3Service s3Service*/)
         {
             _storeServices = storeServices;
-            _mapper = mapper;
+            //_s3Service = s3Service;
         }
 
 
         /// <summary>
         /// - Retorna todas as Stores
         /// </summary>       
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, StoreOwner, Customer")]
         [HttpGet]
-        [ProducesResponseType(typeof(StoreViewModel), StatusCodes.Status200OK)]
+        [OutputCache(Duration = 15)]
+        [ProducesResponseType(typeof(StoreDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<StoreViewModel>>> GetAll()
+        public async Task<ActionResult<IEnumerable<StoreDTO>>> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20)
         {
 
-            var stores = await _storeServices.GetAll();
-            return Ok(_mapper.Map<IEnumerable<StoreDTO>>(stores));
+            var stores = await _storeServices.GetAll(pageNumber, pageSize);
+            return Ok(stores);
         }
 
         /// <summary>
         /// - Busca uma Store por Id.
         /// </summary>
         /// <param name="Id"></param>
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, StoreOwner, Customer")]
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(StoreViewModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(StoreDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<StoreViewModel>> GetById(int id)
+        public async Task<ActionResult<StoreDTO>> GetById(string id)
         {
             var store = await _storeServices.GetById(id);
             if (store == null)
                 return NotFound();
 
-            return Ok(_mapper.Map<StoreDTO>(store));
+            return Ok(store);
         }
 
 
@@ -62,10 +63,10 @@ namespace ads.feira.api.Controllers
         /// </summary> 
         [Authorize(Roles = "Admin, StoreOwner")]
         [HttpPost]
-        [ProducesResponseType(typeof(CreateStoreViewModel), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(CreateStoreDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> Create([FromForm] CreateStoreViewModel storeViewModel)
+        public async Task<ActionResult> Create([FromForm] CreateStoreDTO createStoreDTO)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -77,10 +78,14 @@ namespace ads.feira.api.Controllers
                 return Unauthorized("User not authenticated.");
             }
 
-            storeViewModel.StoreOwnerId = userId;
+            if (createStoreDTO.Assets != null)
+            {
+                createStoreDTO.AssetsPath = await FilesExtensions.UploadImage(createStoreDTO.Assets);
+            }
 
-            var storeDTO = _mapper.Map<CreateStoreDTO>(storeViewModel);
-            await _storeServices.Create(storeDTO);
+            createStoreDTO.StoreOwnerId = userId;
+
+            await _storeServices.Create(createStoreDTO);
 
             return Ok("Store Cadastrada");
         }
@@ -90,11 +95,11 @@ namespace ads.feira.api.Controllers
         /// </summary> 
         [Authorize(Roles = "Admin, StoreOwner")]
         [HttpPut("{id}")]
-        [ProducesResponseType(typeof(UpdateStoreViewModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(UpdateStoreDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> Update(int id, [FromForm] UpdateStoreViewModel storeViewModel)
+        public async Task<ActionResult> Update(string id, [FromForm] UpdateStoreDTO storeDto)
         {
             if (id == null)
                 return BadRequest("ID mismatch");
@@ -102,8 +107,12 @@ namespace ads.feira.api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var storeDTO = _mapper.Map<UpdateStoreDTO>(storeViewModel);
-            await _storeServices.Update(storeDTO);
+            if (storeDto.Assets != null)
+            {
+                storeDto.AssetsPath = await FilesExtensions.UploadImage(storeDto.Assets);
+            }
+
+            await _storeServices.Update(storeDto);
 
             return Ok("Categoria atualizada");
         }
@@ -114,7 +123,7 @@ namespace ads.feira.api.Controllers
         /// <param name="Id"></param>
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
-        public async Task<ActionResult> Remove(int id)
+        public async Task<ActionResult> Remove(string id)
         {
             await _storeServices.Remove(id);
             return NoContent();

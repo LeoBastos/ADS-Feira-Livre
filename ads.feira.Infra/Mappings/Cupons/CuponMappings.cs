@@ -8,7 +8,10 @@ namespace ads.feira.Infra.Mappings.Cupons
     {
         public void Configure(EntityTypeBuilder<Cupon> builder)
         {
-            builder.HasKey(c => c.Id);            
+            builder.HasKey(c => c.Id);
+            builder.Property(c => c.Id)
+                   .HasMaxLength(36)
+                   .ValueGeneratedOnAdd();
             builder.Property(c => c.Name).IsRequired().HasMaxLength(100);
             builder.Property(c => c.Code).IsRequired().HasMaxLength(50);
             builder.Property(c => c.Description).IsRequired().HasMaxLength(500);
